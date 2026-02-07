@@ -136,7 +136,7 @@ for i, tabName in ipairs(TabNames) do
     -- TAB BUTTON
     local TabBtn = Instance.new("TextButton")
     TabBtn.Size = UDim2.new(1,-8,0,36)
-    TabBtn.Position = UDim2.new(0,4,(i-1)*37,0)  -- ZEROWE SPASEJE!
+    TabBtn.Position = UDim2.new(0,4,(i-1)*37,0)
     TabBtn.BackgroundColor3 = Color3.fromRGB(38,42,52)
     TabBtn.Text = tabName
     TabBtn.TextColor3 = Color3.fromRGB(190,200,220)
@@ -297,16 +297,21 @@ local function AddSlider(parent, name, min, max, default, callback)
     FCorner.CornerRadius = UDim.new(0,3)
     FCorner.Parent = Fill
     
-    local dragging = false
+    local sliderDragging = false
     Track.InputBegan:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 then 
+            sliderDragging = true 
+        end
     end)
     Track.InputEnded:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 then 
+            sliderDragging = false 
+        end
     end)
     
-    UserInputService.InputChanged:Connect(function(inp)
-        if dragging and inp.UserInputType == Enum.UserInputType.MouseMovement then
+    local connection
+    connection = UserInputService.InputChanged:Connect(function(inp)
+        if sliderDragging and inp.UserInputType == Enum.UserInputType.MouseMovement then
             local MousePos = inp.Position.X - Track.AbsolutePosition.X
             local Percent = math.clamp(MousePos/Track.AbsoluteSize.X,0,1)
             local Value = math.floor(min + (max-min)*Percent)
@@ -334,7 +339,7 @@ local function AddButton(parent, name, callback)
     
     Button.MouseButton1Click:Connect(function()
         TweenService:Create(Button,TweenInfo.new(0.1),{BackgroundColor3=Color3.fromRGB(75,85,120)}):Play()
-        wait(0.1)
+        task.wait(0.1)
         TweenService:Create(Button,TweenInfo.new(0.1),{BackgroundColor3=Color3.fromRGB(55,65,90)}):Play()
         callback()
     end)
@@ -358,12 +363,13 @@ end)
 AddToggle(TabContents[1],"Lot",function(state)
     Settings.Fly = state
     if state then
-        spawn(function()
-            repeat wait() until LocalPlayer.Character
+        task.spawn(function()
+            repeat task.wait() until LocalPlayer.Character
             local Root = LocalPlayer.Character:WaitForChild("HumanoidRootPart")
             local BV = Instance.new("BodyVelocity")
             BV.MaxForce = Vector3.new(4000,4000,4000)
             BV.Parent = Root
+            if Connections.Fly then Connections.Fly:Disconnect() end
             Connections.Fly = RunService.Heartbeat:Connect(function()
                 if not Settings.Fly then return end
                 local Move = Vector3.new()
@@ -378,7 +384,10 @@ AddToggle(TabContents[1],"Lot",function(state)
             end)
         end)
     else
-        if Connections.Fly then Connections.Fly:Disconnect() end
+        if Connections.Fly then 
+            Connections.Fly:Disconnect() 
+            Connections.Fly = nil
+        end
         if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyVelocity") then
             LocalPlayer.Character.HumanoidRootPart.BodyVelocity:Destroy()
         end
@@ -387,6 +396,7 @@ end)
 
 AddToggle(TabContents[1],"Noclip",function(state)
     if state then
+        if Connections.Noclip then Connections.Noclip:Disconnect() end
         Connections.Noclip = RunService.Stepped:Connect(function()
             if LocalPlayer.Character then
                 for _,part in pairs(LocalPlayer.Character:GetChildren()) do
@@ -397,20 +407,27 @@ AddToggle(TabContents[1],"Noclip",function(state)
             end
         end)
     else
-        if Connections.Noclip then Connections.Noclip:Disconnect() end
+        if Connections.Noclip then 
+            Connections.Noclip:Disconnect()
+            Connections.Noclip = nil
+        end
     end
 end)
 
 -- PLAYER TAB (TAB 2)
 AddToggle(TabContents[2],"Spin Bot",function(state)
     if state then
+        if Connections.Spin then Connections.Spin:Disconnect() end
         Connections.Spin = RunService.Heartbeat:Connect(function()
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 LocalPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.Angles(0,math.rad(35),0)
             end
         end)
     else
-        if Connections.Spin then Connections.Spin:Disconnect() end
+        if Connections.Spin then 
+            Connections.Spin:Disconnect()
+            Connections.Spin = nil
+        end
     end
 end)
 
@@ -421,6 +438,7 @@ end)
 -- COMBAT TAB (TAB 3)
 AddToggle(TabContents[3],"Aimbot",function(state)
     if state then
+        if Connections.Aimbot then Connections.Aimbot:Disconnect() end
         Connections.Aimbot = RunService.Heartbeat:Connect(function()
             local Target = nil
             local Dist = math.huge
@@ -436,12 +454,15 @@ AddToggle(TabContents[3],"Aimbot",function(state)
                     end
                 end
             end
-            if Target and Target.Character then
+            if Target and Target.Character and Target.Character:FindFirstChild("Head") then
                 Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position,Target.Character.Head.Position)
             end
         end)
     else
-        if Connections.Aimbot then Connections.Aimbot:Disconnect() end
+        if Connections.Aimbot then 
+            Connections.Aimbot:Disconnect()
+            Connections.Aimbot = nil
+        end
     end
 end)
 
@@ -451,6 +472,8 @@ AddToggle(TabContents[4],"ESP",function(state)
     for _,plr in pairs(Players:GetPlayers()) do
         if plr~=LocalPlayer then
             if state and plr.Character then
+                local esp = plr.Character:FindFirstChild("PandusESP")
+                if esp then esp:Destroy() end
                 local High = Instance.new("Highlight")
                 High.Name = "PandusESP"
                 High.FillColor = Color3.fromRGB(0,170,255)
@@ -466,17 +489,20 @@ end)
 
 -- UTILITY TAB (TAB 5)
 AddToggle(TabContents[5],"Anti-AFK",function(state)
-    spawn(function()
+    task.spawn(function()
         while state do
+            task.wait(0.1)
             local BV = Instance.new("BodyVelocity")
             BV.MaxForce = Vector3.new(4000,4000,4000)
             BV.Velocity = Vector3.new(0,0.1,0)
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 BV.Parent = LocalPlayer.Character.HumanoidRootPart
+                task.wait(0.1)
+                BV:Destroy()
+            else
+                BV:Destroy()
             end
-            wait(0.1)
-            BV:Destroy()
-            wait(59)
+            task.wait(59)
         end
     end)
 end)
@@ -487,7 +513,7 @@ end)
 
 AddButton(TabContents[5],"Turcja ❤️",function()
     pcall(function()
-        ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents").SayMessageRequest:FireServer("i ❤️ Turcja","All")
+        ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")["SayMessageRequest"]:FireServer("i ❤️ Turcja","All")
     end)
 end)
 
@@ -505,7 +531,7 @@ AddButton(TabContents[6],"FLING ALL ULTRA",function()
     end
 end)
 
-AddButton(TabContents[6],"Teleport Players",function()
+AddButton(TabConnections[6],"Teleport Players",function()
     local TpGui = Instance.new("Frame")
     TpGui.Size = UDim2.new(0,220,0,300)
     TpGui.Position = UDim2.new(0.5,-110,0.5,-150)
@@ -555,12 +581,12 @@ end)
 -- UPDATE CANVAS SIZE
 local function UpdateCanvasSize()
     for _,content in pairs(TabContents) do
-        content.CanvasSize = UDim2.new(0,0,0,content.AbsoluteContentSize.Y)
+        content.CanvasSize = UDim2.new(0,0,0,content.AbsoluteContentSize.Y + 20)
     end
 end
 
-spawn(function()
-    wait(0.5)
+task.spawn(function()
+    task.wait(0.5)
     UpdateCanvasSize()
 end)
 
@@ -573,7 +599,8 @@ CloseButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
 end)
 
-UserInputService.InputBegan:Connect(function(key)
+UserInputService.InputBegan:Connect(function(key, gameProcessed)
+    if gameProcessed then return end
     if key.KeyCode == Enum.KeyCode.Z then
         MainFrame.Visible = not MainFrame.Visible
     end
@@ -581,7 +608,7 @@ end)
 
 -- CHARACTER SPAWN
 LocalPlayer.CharacterAdded:Connect(function()
-    wait(1)
+    task.wait(1)
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
         LocalPlayer.Character.Humanoid.WalkSpeed = Settings.Speed
         LocalPlayer.Character.Humanoid.JumpPower = Settings.JumpPower
@@ -591,8 +618,10 @@ end)
 -- ESP SPAWN HANDLING
 Players.PlayerAdded:Connect(function(plr)
     plr.CharacterAdded:Connect(function()
-        wait(1)
+        task.wait(1)
         if Settings.ESP and plr.Character then
+            local esp = plr.Character:FindFirstChild("PandusESP")
+            if esp then esp:Destroy() end
             local High = Instance.new("Highlight")
             High.Name = "PandusESP"
             High.FillColor = Color3.fromRGB(0,170,255)
