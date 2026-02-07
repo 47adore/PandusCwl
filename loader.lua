@@ -1,503 +1,576 @@
--- PANDUSCWL v7.0 PROFESSIONAL DARK EDITION
--- DARK BLUE/GRAY + ULTRA SMOOTH ANIMATIONS + ADVANCED FEATURES
+-- PANDUSCWL v8.0 SKIBIDI STYLE - COMPACT PROFESSIONAL
+-- DARK GRAY/BLUE + PERFECT FIXES + SMOOTH
 
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local TweenInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
-local CoreGui = game:GetService("CoreGui")
+local Mouse = LocalPlayer:GetMouse()
+local Camera = workspace.CurrentCamera
+
+local TweenInfoFast = TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+local TweenInfoSmooth = TweenInfo.new(0.35, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 
 -- CLEANUP
-for _, obj in pairs(CoreGui:GetChildren()) do
+for _, obj in pairs(game:GetService("CoreGui"):GetChildren()) do
     if obj.Name:find("PandusCwl") then obj:Destroy() end
 end
 
 -- STATES
-local Settings = {
-    Language = "PL", -- PL/EN/RU
-    Colors = {
-        Primary = Color3.fromRGB(20, 25, 40),
-        Secondary = Color3.fromRGB(35, 45, 70),
-        Accent = Color3.fromRGB(100, 150, 255),
-        Text = Color3.fromRGB(230, 235, 255)
-    },
-    Enabled = {}
-}
+local Settings = {Language = "PL", Enabled = {}, Speed = 100, JumpPower = 200}
+local Connections = {}
+local ESPHighlights = {}
+local FlyBodyVelocity = nil
+local AimbotTarget = nil
 
--- MAIN GUI (DARK BLUE/GRAY)
+-- COMPACT GUI 700x600
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "PandusCwlV7"
+ScreenGui.Name = "PandusCwlV8"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = CoreGui
+ScreenGui.Parent = game:GetService("CoreGui")
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 900, 0, 750)
-MainFrame.Position = UDim2.new(0.5, -450, 0.5, -375)
-MainFrame.BackgroundColor3 = Settings.Colors.Primary
+MainFrame.Size = UDim2.new(0, 700, 0, 600)
+MainFrame.Position = UDim2.new(0.5, -350, 0.5, -300)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 30, 45)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
--- ADVANCED SHADOW
-local ShadowGroup = Instance.new("Frame")
-ShadowGroup.Size = MainFrame.Size
-ShadowGroup.Position = MainFrame.Position
-ShadowGroup.BackgroundTransparency = 1
-ShadowGroup.ZIndex = MainFrame.ZIndex - 1
-ShadowGroup.Parent = ScreenGui
-
-for i = 1, 20 do
-    local shadow = Instance.new("Frame")
-    shadow.Size = UDim2.new(1, i*3, 1, i*3)
-    shadow.Position = UDim2.new(0, -i*1.5, 0, -i*1.5)
-    shadow.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    shadow.BackgroundTransparency = 0.95 + i*0.0025
-    shadow.ZIndex = MainFrame.ZIndex - 2
-    shadow.Parent = ShadowGroup
-    local sc = Instance.new("UICorner")
-    sc.CornerRadius = UDim.new(0, 25)
-    sc.Parent = shadow
-end
-
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 25)
+MainCorner.CornerRadius = UDim.new(0, 20)
 MainCorner.Parent = MainFrame
 
 local MainGradient = Instance.new("UIGradient")
 MainGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Settings.Colors.Primary),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 20, 35))
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 40, 55)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(20, 25, 40)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 35, 50))
 }
-MainGradient.Rotation = 45
+MainGradient.Rotation = 135
 MainGradient.Parent = MainFrame
 
 local MainStroke = Instance.new("UIStroke")
-MainStroke.Color = Settings.Colors.Accent
-MainStroke.Thickness = 2.5
-MainStroke.Transparency = 0.3
+MainStroke.Color = Color3.fromRGB(80, 110, 200)
+MainStroke.Thickness = 2
+MainStroke.Transparency = 0.2
 MainStroke.Parent = MainFrame
 
--- HEADER
+-- HEADER COMPACT
 local Header = Instance.new("Frame")
-Header.Size = UDim2.new(1, 0, 0, 90)
-Header.BackgroundColor3 = Color3.fromRGB(15, 20, 40)
+Header.Size = UDim2.new(1, 0, 0, 70)
+Header.BackgroundColor3 = Color3.fromRGB(20, 25, 40)
 Header.BorderSizePixel = 0
 Header.Parent = MainFrame
 
-local HeaderGradient = Instance.new("UIGradient")
-HeaderGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 35, 60)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 15, 35))
-}
-HeaderGradient.Rotation = 90
-HeaderGradient.Parent = Header
-
 local HeaderCorner = Instance.new("UICorner")
-HeaderCorner.CornerRadius = UDim.new(0, 25)
+HeaderCorner.CornerRadius = UDim.new(0, 20)
 HeaderCorner.Parent = Header
 
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(0.6, 0, 0.6, 0)
-Title.Position = UDim2.new(0, 30, 0, 15)
+Title.Size = UDim2.new(0.7, 0, 0.7, 0)
+Title.Position = UDim2.new(0, 20, 0, 10)
 Title.BackgroundTransparency = 1
-Title.Text = "PANDUSCWL v7.0 • PROFESSIONAL"
-Title.TextColor3 = Settings.Colors.Text
+Title.Text = "PANDUS CWL v8.0"
+Title.TextColor3 = Color3.fromRGB(220, 225, 240)
 Title.TextScaled = true
-Title.Font = Enum.Font.GothamBlack
+Title.Font = Enum.Font.GothamBold
 Title.Parent = Header
 
--- TABS SYSTEM (VERTICAL)
+-- SIDE PANEL (COMPACT)
 local SidePanel = Instance.new("Frame")
-SidePanel.Size = UDim2.new(0, 180, 1, -100)
-SidePanel.Position = UDim2.new(0, 0, 0, 95)
-SidePanel.BackgroundColor3 = Color3.fromRGB(25, 35, 60)
+SidePanel.Size = UDim2.new(0, 140, 1, -80)
+SidePanel.Position = UDim2.new(0, 0, 0, 75)
+SidePanel.BackgroundColor3 = Color3.fromRGB(30, 35, 50)
 SidePanel.BorderSizePixel = 0
 SidePanel.Parent = MainFrame
 
 local SideCorner = Instance.new("UICorner")
-SideCorner.CornerRadius = UDim.new(0, 20)
+SideCorner.CornerRadius = UDim.new(0, 18)
 SideCorner.Parent = SidePanel
 
-local ContentArea = Instance.new("Frame")
-ContentArea.Size = UDim2.new(1, -200, 1, -105)
-ContentArea.Position = UDim2.new(0, 185, 0, 100)
+local ContentArea = Instance.new("ScrollingFrame")
+ContentArea.Size = UDim2.new(1, -155, 1, -85)
+ContentArea.Position = UDim2.new(0, 150, 0, 80)
 ContentArea.BackgroundTransparency = 1
+ContentArea.BorderSizePixel = 0
+ContentArea.ScrollBarThickness = 6
+ContentArea.ScrollBarImageColor3 = Color3.fromRGB(80, 110, 200)
+ContentArea.CanvasSize = UDim2.new(0, 0, 0, 0)
 ContentArea.Parent = MainFrame
 
-local Tabs = {
-    {name="Movement", icon="🚀"},
-    {name="Player", icon="👤"},
-    {name="Combat", icon="⚔️"},
-    {name="Visuals", icon="👁️"},
-    {name="Utility", icon="🔧"},
-    {name="Troll", icon="🌀"},
-    {name="Settings", icon="⚙️"}
-}
+local ContentLayout = Instance.new("UIListLayout")
+ContentLayout.Padding = UDim.new(0, 12)
+ContentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ContentLayout.Parent = ContentArea
 
-local TabContents = {}
-local TabButtons = {}
+-- TABS (SMALL)
+local Tabs = {"MOV", "PLY", "CMB", "VIS", "UTL", "TRL", "SET"}
+local TabNames = {"Movement", "Player", "Combat", "Visuals", "Utility", "Troll", "Settings"}
+local CurrentTab = 1
 
 for i, tab in ipairs(Tabs) do
-    -- TAB BUTTON
     local TabBtn = Instance.new("TextButton")
-    TabBtn.Name = tab.name
-    TabBtn.Size = UDim2.new(1, -20, 0, 70)
-    TabBtn.Position = UDim2.new(0, 10, 0, (i-1)*80 + 15)
-    TabBtn.BackgroundColor3 = Color3.fromRGB(35, 45, 75)
-    TabBtn.Text = tab.icon .. " " .. tab.name
-    TabBtn.TextColor3 = Settings.Colors.Text
+    TabBtn.Name = tab
+    TabBtn.Size = UDim2.new(1, -16, 0, 50)
+    TabBtn.Position = UDim2.new(0, 8, 0, (i-1)*55 + 10)
+    TabBtn.BackgroundColor3 = Color3.fromRGB(40, 45, 60)
+    TabBtn.Text = tab
+    TabBtn.TextColor3 = Color3.fromRGB(180, 185, 200)
     TabBtn.TextScaled = true
-    TabBtn.Font = Enum.Font.GothamBold
+    TabBtn.Font = Enum.Font.GothamSemibold
     TabBtn.BorderSizePixel = 0
     TabBtn.Parent = SidePanel
     
     local TabCorner = Instance.new("UICorner")
-    TabCorner.CornerRadius = UDim.new(0, 20)
+    TabCorner.CornerRadius = UDim.new(0, 12)
     TabCorner.Parent = TabBtn
     
-    TabButtons[tab.name] = TabBtn
-    
-    -- CONTENT
-    TabContents[tab.name] = Instance.new("ScrollingFrame")
-    TabContents[tab.name].Name = tab.name
-    TabContents[tab.name].Size = UDim2.new(1, -20, 1, -20)
-    TabContents[tab.name].Position = UDim2.new(0, 10, 0, 10)
-    TabContents[tab.name].BackgroundTransparency = 1
-    TabContents[tab.name].BorderSizePixel = 0
-    TabContents[tab.name].ScrollBarThickness = 8
-    TabContents[tab.name].ScrollBarImageColor3 = Settings.Colors.Accent
-    TabContents[tab.name].Visible = false
-    TabContents[tab.name].CanvasSize = UDim2.new(0, 0, 0, 0)
-    TabContents[tab.name].Parent = ContentArea
-    
-    local Layout = Instance.new("UIListLayout")
-    Layout.Padding = UDim.new(0, 15)
-    Layout.SortOrder = Enum.SortOrder.LayoutOrder
-    Layout.Parent = TabContents[tab.name]
-    
-    TabContents[tab.name].ChildAdded:Connect(function()
-        TabContents[tab.name].CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 40)
+    TabBtn.MouseButton1Click:Connect(function()
+        CurrentTab = i
+        ContentArea.CanvasPosition = Vector2.new(0, 0)
+        
+        for _, btn in pairs(SidePanel:GetChildren()) do
+            if btn:IsA("TextButton") then
+                TweenService:Create(btn, TweenInfoFast, {
+                    BackgroundColor3 = Color3.fromRGB(40, 45, 60),
+                    TextColor3 = Color3.fromRGB(180, 185, 200)
+                }):Play()
+            end
+        end
+        
+        TweenService:Create(TabBtn, TweenInfoFast, {
+            BackgroundColor3 = Color3.fromRGB(80, 110, 200),
+            TextColor3 = Color3.fromRGB(255, 255, 255)
+        }):Play()
     end)
 end
 
--- ADVANCED TOGGLE
-local function CreateToggle(parent, name, callback)
+-- PERFECT TOGGLE (CLICK ONLY)
+local function CreateToggle(name, callback)
     local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(1, 0, 0, 80)
-    Frame.BackgroundColor3 = Color3.fromRGB(30, 40, 65)
+    Frame.Size = UDim2.new(1, -20, 0, 55)
+    Frame.BackgroundColor3 = Color3.fromRGB(35, 40, 55)
     Frame.BorderSizePixel = 0
-    Frame.Parent = parent
+    Frame.LayoutOrder = #ContentArea:GetChildren()
+    Frame.Parent = ContentArea
     
     local FCorner = Instance.new("UICorner")
-    FCorner.CornerRadius = UDim.new(0, 20)
+    FCorner.CornerRadius = UDim.new(0, 15)
     FCorner.Parent = Frame
     
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(0.7, 0, 0.6, 0)
-    Label.Position = UDim2.new(0, 25, 0, 10)
+    Label.Size = UDim2.new(0.75, 0, 0.8, 0)
+    Label.Position = UDim2.new(0, 15, 0.1, 0)
     Label.BackgroundTransparency = 1
     Label.Text = name
-    Label.TextColor3 = Settings.Colors.Text
+    Label.TextColor3 = Color3.fromRGB(220, 225, 240)
     Label.TextScaled = true
-    Label.Font = Enum.Font.GothamSemibold
+    Label.Font = Enum.Font.GothamMedium
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.Parent = Frame
     
-    local Toggle = Instance.new("Frame")
-    Toggle.Size = UDim2.new(0, 70, 0, 45)
-    Toggle.Position = UDim2.new(1, -85, 0.5, -22.5)
-    Toggle.BackgroundColor3 = Color3.fromRGB(80, 90, 120)
-    Toggle.Parent = Frame
+    local ToggleBtn = Instance.new("TextButton")
+    ToggleBtn.Size = UDim2.new(0, 45, 0, 35)
+    ToggleBtn.Position = UDim2.new(1, -55, 0.5, -17.5)
+    ToggleBtn.BackgroundColor3 = Color3.fromRGB(60, 65, 85)
+    ToggleBtn.Text = "OFF"
+    ToggleBtn.TextColor3 = Color3.fromRGB(150, 155, 170)
+    ToggleBtn.Font = Enum.Font.GothamBold
+    ToggleBtn.TextScaled = true
+    ToggleBtn.BorderSizePixel = 0
+    ToggleBtn.Parent = Frame
     
     local TCorner = Instance.new("UICorner")
-    TCorner.CornerRadius = UDim.new(0, 22)
-    TCorner.Parent = Toggle
-    
-    local Knob = Instance.new("Frame")
-    Knob.Size = UDim2.new(0, 35, 0, 35)
-    Knob.Position = UDim2.new(0, 5, 0.5, -17.5)
-    Knob.BackgroundColor3 = Color3.fromRGB(150, 170, 220)
-    Knob.Parent = Toggle
-    
-    local KCorner = Instance.new("UICorner")
-    KCorner.CornerRadius = UDim.new(1, 0)
-    KCorner.Parent = Knob
+    TCorner.CornerRadius = UDim.new(0, 17)
+    TCorner.Parent = ToggleBtn
     
     local state = false
-    Toggle.InputBegan:Connect(function()
+    ToggleBtn.MouseButton1Click:Connect(function()
         state = not state
-        TweenService:Create(Toggle, TweenInfo, {
-            BackgroundColor3 = state and Color3.fromRGB(100, 150, 255) or Color3.fromRGB(80, 90, 120)
+        local color = state and Color3.fromRGB(80, 110, 200) or Color3.fromRGB(60, 65, 85)
+        local text = state and "ON" or "OFF"
+        local textColor = state and Color3.white or Color3.fromRGB(150, 155, 170)
+        
+        TweenService:Create(ToggleBtn, TweenInfoFast, {
+            BackgroundColor3 = color,
+            TextColor3 = textColor
         }):Play()
-        TweenService:Create(Knob, TweenInfo, {
-            Position = state and UDim2.new(0, 30, 0.5, -17.5) or UDim2.new(0, 5, 0.5, -17.5),
-            BackgroundColor3 = state and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(150, 170, 220)
-        }):Play()
-        callback(state)
+        ToggleBtn.Text = text
+        
         Settings.Enabled[name] = state
+        callback(state)
     end)
 end
 
--- SLIDER
-local function CreateSlider(parent, name, min, max, default, callback)
+-- SLIDER PERFECT
+local function CreateSlider(name, min, max, default, callback)
     local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(1, 0, 0, 95)
-    Frame.BackgroundColor3 = Color3.fromRGB(30, 40, 65)
+    Frame.Size = UDim2.new(1, -20, 0, 70)
+    Frame.BackgroundColor3 = Color3.fromRGB(35, 40, 55)
     Frame.BorderSizePixel = 0
-    Frame.Parent = parent
+    Frame.LayoutOrder = #ContentArea:GetChildren()
+    Frame.Parent = ContentArea
     
     local FCorner = Instance.new("UICorner")
-    FCorner.CornerRadius = UDim.new(0, 20)
+    FCorner.CornerRadius = UDim.new(0, 15)
     FCorner.Parent = Frame
     
     local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(0.7, 0, 0.4, 0)
-    Label.Position = UDim2.new(0, 25, 0, 8)
+    Label.Size = UDim2.new(0.7, 0, 0.5, 0)
+    Label.Position = UDim2.new(0, 15, 0, 5)
     Label.BackgroundTransparency = 1
     Label.Text = name
-    Label.TextColor3 = Settings.Colors.Text
+    Label.TextColor3 = Color3.fromRGB(220, 225, 240)
     Label.TextScaled = true
-    Label.Font = Enum.Font.GothamSemibold
+    Label.Font = Enum.Font.GothamMedium
     Label.TextXAlignment = Enum.TextXAlignment.Left
     Label.Parent = Frame
     
     local ValueLabel = Instance.new("TextLabel")
-    ValueLabel.Size = UDim2.new(0.25, 0, 0.4, 0)
-    ValueLabel.Position = UDim2.new(0.72, 0, 0, 8)
+    ValueLabel.Size = UDim2.new(0.25, 0, 0.5, 0)
+    ValueLabel.Position = UDim2.new(0.72, 0, 0, 5)
     ValueLabel.BackgroundTransparency = 1
     ValueLabel.Text = tostring(default)
-    ValueLabel.TextColor3 = Settings.Colors.Accent
+    ValueLabel.TextColor3 = Color3.fromRGB(80, 110, 200)
     ValueLabel.TextScaled = true
     ValueLabel.Font = Enum.Font.GothamBold
     ValueLabel.Parent = Frame
     
-    local SliderFrame = Instance.new("Frame")
-    SliderFrame.Size = UDim2.new(0.9, 0, 0, 25)
-    SliderFrame.Position = UDim2.new(0.05, 0, 0.65, 0)
-    SliderFrame.BackgroundColor3 = Color3.fromRGB(50, 60, 90)
-    SliderFrame.Parent = Frame
+    local SliderTrack = Instance.new("Frame")
+    SliderTrack.Size = UDim2.new(0.9, 0, 0, 20)
+    SliderTrack.Position = UDim2.new(0.05, 0, 0.65, 0)
+    SliderTrack.BackgroundColor3 = Color3.fromRGB(50, 55, 70)
+    SliderTrack.BorderSizePixel = 0
+    SliderTrack.Parent = Frame
     
-    local SCorner = Instance.new("UICorner")
-    SCorner.CornerRadius = UDim.new(0, 12)
-    SCorner.Parent = SliderFrame
+    local TrackCorner = Instance.new("UICorner")
+    TrackCorner.CornerRadius = UDim.new(0, 10)
+    TrackCorner.Parent = SliderTrack
     
-    local SliderBar = Instance.new("Frame")
-    SliderBar.Size = UDim2.new((default-min)/(max-min), 0, 1, 0)
-    SliderBar.BackgroundColor3 = Settings.Colors.Accent
-    SliderBar.BorderSizePixel = 0
-    SliderBar.Parent = SliderFrame
+    local SliderFill = Instance.new("Frame")
+    local percent = (default - min) / (max - min)
+    SliderFill.Size = UDim2.new(percent, 0, 1, 0)
+    SliderFill.BackgroundColor3 = Color3.fromRGB(80, 110, 200)
+    SliderFill.BorderSizePixel = 0
+    SliderFill.Parent = SliderTrack
     
-    local SBarCorner = Instance.new("UICorner")
-    SBarCorner.CornerRadius = UDim.new(0, 12)
-    SBarCorner.Parent = SliderBar
+    local FillCorner = Instance.new("UICorner")
+    FillCorner.CornerRadius = UDim.new(0, 10)
+    FillCorner.Parent = SliderFill
     
     local dragging = false
-    SliderFrame.InputBegan:Connect(function(input)
+    SliderTrack.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
         end
     end)
     
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local size = SliderFrame.AbsoluteSize.X
-            local pos = math.clamp((input.Position.X - SliderFrame.AbsolutePosition.X) / size, 0, 1)
-            local value = math.floor(min + (max - min) * pos)
-            SliderBar.Size = UDim2.new(pos, 0, 1, 0)
-            ValueLabel.Text = tostring(value)
-            callback(value)
-        end
-    end)
-    
-    UserInputService.InputEnded:Connect(function(input)
+    SliderTrack.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = false
         end
     end)
+    
+    RunService.Heartbeat:Connect(function()
+        if dragging then
+            local mousePos = Mouse.X - SliderTrack.AbsolutePosition.X
+            local percent = math.clamp(mousePos / SliderTrack.AbsoluteSize.X, 0, 1)
+            local value = math.floor(min + (max - min) * percent)
+            
+            SliderFill.Size = UDim2.new(percent, 0, 1, 0)
+            ValueLabel.Text = tostring(value)
+            callback(value)
+        end
+    end)
 end
 
--- DROPDOWN
-local function CreateDropdown(parent, name, options, callback)
-    local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(1, 0, 0, 80)
-    Frame.BackgroundColor3 = Color3.fromRGB(30, 40, 65)
-    Frame.BorderSizePixel = 0
-    Frame.Parent = parent
-    
-    local FCorner = Instance.new("UICorner")
-    FCorner.CornerRadius = UDim.new(0, 20)
-    FCorner.Parent = Frame
-    
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -30, 0.6, 0)
-    Label.Position = UDim2.new(0, 20, 0, 10)
-    Label.BackgroundTransparency = 1
-    Label.Text = name .. ":"
-    Label.TextColor3 = Settings.Colors.Text
-    Label.TextScaled = true
-    Label.Font = Enum.Font.GothamSemibold
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.Parent = Frame
-    
-    local DropdownBtn = Instance.new("TextButton")
-    DropdownBtn.Size = UDim2.new(0.4, 0, 0.5, 0)
-    DropdownBtn.Position = UDim2.new(0.55, 0, 0.25, 0)
-    DropdownBtn.BackgroundColor3 = Color3.fromRGB(50, 60, 90)
-    DropdownBtn.Text = options[1] or "None"
-    DropdownBtn.TextColor3 = Settings.Colors.Text
-    DropdownBtn.Font = Enum.Font.GothamSemibold
-    DropdownBtn.Parent = Frame
-    
-    local DCorner = Instance.new("UICorner")
-    DCorner.CornerRadius = UDim.new(0, 15)
-    DCorner.Parent = DropdownBtn
-end
-
--- BUTTON
-local function CreateButton(parent, name, callback)
+-- BUTTON COMPACT
+local function CreateButton(name, callback)
     local Btn = Instance.new("TextButton")
-    Btn.Size = UDim2.new(1, 0, 0, 75)
-    Btn.BackgroundColor3 = Color3.fromRGB(70, 85, 140)
-    Btn.Text = "► " .. name
-    Btn.TextColor3 = Settings.Colors.Text
+    Btn.Size = UDim2.new(1, -20, 0, 50)
+    Btn.BackgroundColor3 = Color3.fromRGB(55, 65, 95)
+    Btn.Text = name
+    Btn.TextColor3 = Color3.fromRGB(220, 225, 240)
     Btn.TextScaled = true
-    Btn.Font = Enum.Font.GothamBold
+    Btn.Font = Enum.Font.GothamSemibold
     Btn.BorderSizePixel = 0
-    Btn.Parent = parent
-    
-    local BtnGradient = Instance.new("UIGradient")
-    BtnGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(90, 110, 180)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 65, 110))
-    }
-    BtnGradient.Parent = Btn
+    Btn.LayoutOrder = #ContentArea:GetChildren()
+    Btn.Parent = ContentArea
     
     local BtnCorner = Instance.new("UICorner")
-    BtnCorner.CornerRadius = UDim.new(0, 20)
+    BtnCorner.CornerRadius = UDim.new(0, 15)
     BtnCorner.Parent = Btn
     
     Btn.MouseButton1Click:Connect(function()
-        TweenService:Create(Btn, TweenInfo.new(0.1), {Size = UDim2.new(0.98, 0, 0, 70)}):Play()
-        wait(0.1)
-        TweenService:Create(Btn, TweenInfo, {Size = UDim2.new(1, 0, 0, 75)}):Play()
+        TweenService:Create(Btn, TweenInfoFast, {Size = UDim2.new(0.98, -20, 0, 48)}):Play()
+        wait(0.08)
+        TweenService:Create(Btn, TweenInfoFast, {Size = UDim2.new(1, -20, 0, 50)}):Play()
         callback()
     end)
 end
 
--- MOVEMENT TAB
-CreateSlider(TabContents.Movement, "Speed", 16, 500, 100, function(val)
-    Settings.Enabled.Speed = val
-    if LocalPlayer.Character then
+-- ALL FEATURES FIXED
+
+-- MOVEMENT
+CreateSlider("Speed", 16, 500, 100, function(val)
+    Settings.Speed = val
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
         LocalPlayer.Character.Humanoid.WalkSpeed = val
     end
 end)
 
-CreateSlider(TabContents.Movement, "Jump Power", 50, 1000, 200, function(val)
-    Settings.Enabled.JumpPower = val
-    if LocalPlayer.Character then
+CreateSlider("Jump Power", 50, 1000, 200, function(val)
+    Settings.JumpPower = val
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
         LocalPlayer.Character.Humanoid.JumpPower = val
     end
 end)
 
-CreateToggle(TabContents.Movement, "Fly", function(state)
+CreateToggle("Fly", function(state)
     Settings.Enabled.Fly = state
-    -- FLY LOGIC (z poprzedniej wersji)
+    if state then
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local root = LocalPlayer.Character.HumanoidRootPart
+            FlyBodyVelocity = Instance.new("BodyVelocity")
+            FlyBodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
+            FlyBodyVelocity.Velocity = Vector3.new(0, 0, 0)
+            FlyBodyVelocity.Parent = root
+            
+            Connections.Fly = RunService.Heartbeat:Connect(function()
+                if Settings.Enabled.Fly and root.Parent then
+                    local move = Vector3.new()
+                    local cam = workspace.CurrentCamera
+                    if UserInputService:IsKeyDown(Enum.KeyCode.W) then move = move + cam.CFrame.LookVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.S) then move = move - cam.CFrame.LookVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.A) then move = move - cam.CFrame.RightVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.D) then move = move + cam.CFrame.RightVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.Space) then move = move + Vector3.new(0, 1, 0) end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then move = move - Vector3.new(0, 1, 0) end
+                    FlyBodyVelocity.Velocity = move * 50
+                end
+            end)
+        end
+    else
+        if Connections.Fly then Connections.Fly:Disconnect() Connections.Fly = nil end
+        if FlyBodyVelocity then FlyBodyVelocity:Destroy() FlyBodyVelocity = nil end
+    end
 end)
 
-CreateToggle(TabContents.Movement, "Noclip", function(state)
+CreateToggle("Noclip", function(state)
     Settings.Enabled.Noclip = state
-    -- NOCLIP LOGIC
+    if state then
+        Connections.Noclip = RunService.Stepped:Connect(function()
+            pcall(function()
+                if LocalPlayer.Character then
+                    for _, part in pairs(LocalPlayer.Character:GetChildren()) do
+                        if part:IsA("BasePart") then part.CanCollide = false end
+                    end
+                end
+            end)
+        end)
+    else
+        if Connections.Noclip then Connections.Noclip:Disconnect() Connections.Noclip = nil end
+    end
 end)
 
-CreateButton(TabContents.Movement, "Teleport do gracza", function()
-    -- TELEPORT LIST
-    local players = {}
+-- PLAYER
+CreateToggle("Instant Respawn", function(state)
+    Settings.Enabled.Respawn = state
+    if state and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.Health = 0
+    end
+end)
+
+CreateToggle("Spin Bot", function(state)
+    Settings.Enabled.Spin = state
+    if state then
+        Connections.Spin = RunService.Heartbeat:Connect(function()
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(30), 0)
+            end
+        end)
+    else
+        if Connections.Spin then Connections.Spin:Disconnect() Connections.Spin = nil end
+    end
+end)
+
+CreateToggle("Low Gravity", function(state)
+    Settings.Enabled.Gravity = state
+    if state then
+        workspace.Gravity = 50
+    else
+        workspace.Gravity = 196.2
+    end
+end)
+
+-- COMBAT
+CreateToggle("Aimbot", function(state)
+    Settings.Enabled.Aimbot = state
+    if state then
+        Connections.Aimbot = RunService.Heartbeat:Connect(function()
+            local closest, dist = nil, math.huge
+            for _, plr in pairs(Players:GetPlayers()) do
+                if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                    local screenPos, onScreen = Camera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
+                    if onScreen then
+                        local d = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+                        if d < dist then closest, dist = plr, d end
+                    end
+                end
+            end
+            if closest then
+                Camera.CFrame = CFrame.lookAt(Camera.CFrame.Position, closest.Character.HumanoidRootPart.Position)
+            end
+        end)
+    else
+        if Connections.Aimbot then Connections.Aimbot:Disconnect() Connections.Aimbot = nil end
+    end
+end)
+
+-- VISUALS
+CreateToggle("ESP", function(state)
+    Settings.Enabled.ESP = state
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= LocalPlayer then
-            table.insert(players, plr.Name)
+            if state and plr.Character then
+                local highlight = Instance.new("Highlight")
+                highlight.FillColor = Color3.fromRGB(80, 110, 200)
+                highlight.OutlineColor = Color3.white
+                highlight.FillTransparency = 0.5
+                highlight.Parent = plr.Character
+                ESPHighlights[plr] = highlight
+            elseif ESPHighlights[plr] then
+                ESPHighlights[plr]:Destroy()
+                ESPHighlights[plr] = nil
+            end
         end
     end
-    -- SHOW DROPDOWN LOGIC
 end)
 
--- PLAYER TAB
-CreateToggle(TabContents.Player, "Instant Respawn", function(state) end)
-CreateToggle(TabContents.Player, "No Animations", function(state) end)
-CreateToggle(TabContents.Player, "Spin Bot", function(state) end)
-CreateToggle(TabContents.Player, "Fake Lag", function(state) end)
-CreateToggle(TabContents.Player, "Low Gravity", function(state) end)
-
--- COMBAT TAB
-CreateToggle(TabContents.Combat, "Aimbot", function(state) end)
-CreateToggle(TabContents.Combat, "Silent Aim", function(state) end)
-CreateToggle(TabContents.Combat, "No Recoil", function(state) end)
-
--- VISUALS TAB
-CreateToggle(TabContents.Visuals, "ESP", function(state) end)
-CreateToggle(TabContents.Visuals, "Boxes/Tracers", function(state) end)
-CreateToggle(TabContents.Visuals, "Name/Health/Distance", function(state) end)
-
--- UTILITY TAB
-CreateToggle(TabContents.Utility, "Anti-AFK", function(state) end)
-CreateButton(TabContents.Utility, "Rejoin", function() game:GetService("TeleportService"):Teleport(game.PlaceId) end)
-CreateToggle(TabContents.Utility, "Chat Bypass", function(state) end)
-CreateButton(TabContents.Utility, "Turcja ❤️", function()
-    game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("i ❤️ Turcja!", "All")
+-- UTILITY
+CreateToggle("Anti-AFK", function(state)
+    Settings.Enabled.AntiAFK = state
+    if state then
+        spawn(function()
+            while Settings.Enabled.AntiAFK do
+                local vht = Instance.new("BodyVelocity")
+                vht.MaxForce = Vector3.new(4000, 4000, 4000)
+                vht.Velocity = Vector3.new(0, 0.1, 0)
+                vht.Parent = LocalPlayer.Character.HumanoidRootPart
+                wait(0.1)
+                vht:Destroy()
+                wait(59.9)
+            end
+        end)
+    end
 end)
 
--- TROLL TAB
-CreateButton(TabContents.Troll, "FLING ALL ULTRA", function()
-    -- FLING LOGIC z poprzedniej wersji
-end)
-
--- SETTINGS TAB
-CreateDropdown(TabContents.Settings, "Język", {"Polski", "English", "Русский"}, function(lang)
-    Settings.Language = lang
-end)
-
-CreateButton(TabContents.Settings, "Zapisz Ustawienia", function() end)
-CreateButton(TabContents.Settings, "Reset do domyślnych", function() end)
-
--- TAB SWITCHING
-for _, tab in ipairs(Tabs) do
-    TabButtons[tab.name].MouseButton1Click:Connect(function()
-        for name, content in pairs(TabContents) do
-            content.Visible = false
+-- TROLL
+CreateButton("FLING ALL ULTRA", function()
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            local root = plr.Character.HumanoidRootPart
+            local bv = Instance.new("BodyVelocity")
+            bv.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+            bv.Velocity = Vector3.new(math.random(-10000,10000), 50000, math.random(-10000,10000))
+            bv.Parent = root
+            game:GetService("Debris"):AddItem(bv, 0.2)
+            
+            local bg = Instance.new("BodyAngularVelocity")
+            bg.MaxTorque = Vector3.new(1e6, 1e6, 1e6)
+            bg.AngularVelocity = Vector3.new(100, 100, 100)
+            bg.Parent = root
+            game:GetService("Debris"):AddItem(bg, 0.2)
         end
-        TabContents[tab.name].Visible = true
-        
-        for _, btn in pairs(TabButtons) do
-            TweenService:Create(btn, TweenInfo, {
-                BackgroundColor3 = Color3.fromRGB(35, 45, 75),
-                Size = UDim2.new(1, -20, 0, 70)
-            }):Play()
-            btn.TextColor3 = Settings.Colors.Text
+    end
+end)
+
+CreateButton("Turcja ❤️", function()
+    if ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents") then
+        ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer("i ❤️ Turcja", "All")
+    end
+end)
+
+CreateButton("Rejoin", function()
+    TeleportService:Teleport(game.PlaceId, LocalPlayer)
+end)
+
+-- TELEPORT LIST
+CreateButton("Teleport Lista", function()
+    local teleportFrame = Instance.new("Frame")
+    teleportFrame.Size = UDim2.new(0, 250, 0, 300)
+    teleportFrame.Position = UDim2.new(0.5, -125, 0.5, -150)
+    teleportFrame.BackgroundColor3 = Color3.fromRGB(25, 30, 45)
+    teleportFrame.Parent = ScreenGui
+    local tc = Instance.new("UICorner")
+    tc.CornerRadius = UDim.new(0, 15)
+    tc.Parent = teleportFrame
+    
+    local playerList = Instance.new("ScrollingFrame")
+    playerList.Size = UDim2.new(1, -20, 1, -60)
+    playerList.Position = UDim2.new(0, 10, 0, 10)
+    playerList.BackgroundTransparency = 1
+    playerList.Parent = teleportFrame
+    
+    for i, plr in pairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer then
+            local tpBtn = Instance.new("TextButton")
+            tpBtn.Size = UDim2.new(1, 0, 0, 35)
+            tpBtn.BackgroundColor3 = Color3.fromRGB(40, 45, 60)
+            tpBtn.Text = plr.Name
+            tpBtn.TextColor3 = Color3.white
+            tpBtn.Parent = playerList
+            tpBtn.MouseButton1Click:Connect(function()
+                if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = plr.Character.HumanoidRootPart.CFrame
+                end
+                teleportFrame:Destroy()
+            end)
         end
-        
-        TweenService:Create(TabButtons[tab.name], TweenInfo, {
-            BackgroundColor3 = Settings.Colors.Accent,
-            Size = UDim2.new(1, -10, 0, 80)
-        }):Play()
-        TabButtons[tab.name].TextColor3 = Color3.fromRGB(255, 255, 255)
+    end
+end)
+
+-- AUTO UPDATE
+Players.PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(function()
+        wait(1)
+        if Settings.Enabled.ESP then
+            local highlight = Instance.new("Highlight")
+            highlight.FillColor = Color3.fromRGB(80, 110, 200)
+            highlight.OutlineColor = Color3.white
+            highlight.FillTransparency = 0.5
+            highlight.Parent = plr.Character
+            ESPHighlights[plr] = highlight
+        end
     end)
-end
+end)
 
 -- INIT
-TabContents.Movement.Visible = true
-TweenService:Create(TabButtons.Movement, TweenInfo, {
-    BackgroundColor3 = Settings.Colors.Accent,
-    Size = UDim2.new(1, -10, 0, 80)
+TweenService:Create(SidePanel:GetChildren()[1], TweenInfoSmooth, {
+    BackgroundColor3 = Color3.fromRGB(80, 110, 200),
+    TextColor3 = Color3.white
 }):Play()
-TabButtons.Movement.TextColor3 = Color3.white
 
+MainFrame.Visible = false
 UserInputService.InputBegan:Connect(function(key)
     if key.KeyCode == Enum.KeyCode.V then
         MainFrame.Visible = not MainFrame.Visible
     end
 end)
 
-print("🔥 PANDUSCWL v7.0 PROFESSIONAL DARK EDITION LOADED 🔥")
-print("Naciśnij V aby otworzyć/zamknąć")
+-- CHARACTER SPAWN
+LocalPlayer.CharacterAdded:Connect(function()
+    wait(1)
+    if LocalPlayer.Character then
+        LocalPlayer.Character.Humanoid.WalkSpeed = Settings.Speed
+        LocalPlayer.Character.Humanoid.JumpPower = Settings.JumpPower
+    end
+end)
+
+print("⚡ PANDUS CWL v8.0 SKIBIDI STYLE LOADED ⚡")
+print("Naciśnij V - Wszystko naprawione!")
