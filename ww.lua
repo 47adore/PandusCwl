@@ -1,6 +1,3 @@
--- Case Paradise | TURCJIA HUB v8 | PERFECT ZERO ERROR EDITION
--- WSZYSTKIE 11 FUNKCJI NAPRAWIONE + ZERO BŁĘDÓW SYNTAX
-
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -449,11 +446,12 @@ spawn(function()
     wait(1)
     createGUI()
     game.StarterGui:SetCore("SendNotification", {
-        Title = "Turcja Hub v8";
-        Text = "PERFECT ZERO ERROR! Press X to toggle";
+        Title = "Turcja Hub Loaded";
+        Text = "https://github.com/47adore";
         Duration = 5;
     })
 end)
 
 print("🌙 Turcja Hub Loaded")
+
 
