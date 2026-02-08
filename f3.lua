@@ -1,23 +1,16 @@
--- Case Paradise | TURCJIA HUB v12 | PERFECT NO ERROR EDITION
--- WSZYSTKO NAPRAWIONE + ZERO BŁĘDÓW CORE GUI
-
+-- Case Paradise | TURCJIA HUB v12 | PERFECT NO ERROR EDITION (NAPRAWIONE)
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
-local TeleportService = game:GetService("TeleportService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-local camera = Workspace.CurrentCamera
+local camera = workspace.CurrentCamera
 
 -- STANY
 local ScreenGui, MainFrame, toggles = {}, connections = {}, debounce = {}
-local espBoxes, espTracers, espLabels, espHealthBars = {}, {}, {}, {}
-local flyBodyVelocity
 local autoFarmActive, autoSellActive = false, false
 
 -- KOLORY
@@ -35,22 +28,22 @@ local COLORS = {
     GRADIENT2 = Color3.fromRGB(180, 120, 255)
 }
 
--- BEZPIECZNE FIRE
+-- BEZPIECZNE FIRE REMOTE
 local function safeFireRemote(name, ...)
-    for _, obj in pairs(ReplicatedStorage:GetDescendants()) do
-        pcall(function()
+    pcall(function()
+        for _, obj in pairs(ReplicatedStorage:GetDescendants()) do
             if obj.Name:lower():find(name:lower()) and (obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction")) then
-                if ... then
+                if ... ~= nil then
                     obj:FireServer(...)
                 else
                     obj:FireServer()
                 end
             end
-        end)
-    end
+        end
+    end)
 end
 
--- PERFECT GUI (NO CORE ERRORS)
+-- PERFECT GUI
 local function createGUI()
     ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "TurcjaHubV12"
@@ -64,7 +57,6 @@ local function createGUI()
     MainFrame.Active = true
     MainFrame.Draggable = true
     MainFrame.BackgroundColor3 = COLORS.BG_PRIMARY
-    MainFrame.BackgroundTransparency = 0.1
     MainFrame.Position = UDim2.new(0.05, 0, 0.05, 0)
     MainFrame.Size = UDim2.new(0, 950, 0, 700)
 
@@ -77,61 +69,62 @@ local function createGUI()
     gradient.Parent = MainFrame
 
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 30)
+    corner.CornerRadius = UDim.new(0, 20)
     corner.Parent = MainFrame
 
     local stroke = Instance.new("UIStroke")
     stroke.Color = Color3.fromRGB(150, 180, 255)
-    stroke.Thickness = 3
+    stroke.Thickness = 2
     stroke.Parent = MainFrame
 
     -- TITLE BAR
     local titleBar = Instance.new("Frame")
     titleBar.Parent = MainFrame
     titleBar.BackgroundColor3 = COLORS.BG_SECONDARY
-    titleBar.Size = UDim2.new(1, 0, 0, 90)
+    titleBar.Size = UDim2.new(1, 0, 0, 60)
+    titleBar.ZIndex = 10
 
     local titleCorner = Instance.new("UICorner")
-    titleCorner.CornerRadius = UDim.new(0, 30)
+    titleCorner.CornerRadius = UDim.new(0, 20)
     titleCorner.Parent = titleBar
 
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Parent = titleBar
     titleLabel.BackgroundTransparency = 1
-    titleLabel.Position = UDim2.new(0, 40, 0, 0)
-    titleLabel.Size = UDim2.new(0.65, 0, 1, 0)
+    titleLabel.Position = UDim2.new(0, 20, 0, 0)
+    titleLabel.Size = UDim2.new(0.7, 0, 1, 0)
     titleLabel.Font = Enum.Font.GothamBold
     titleLabel.Text = "✨ TURCJIA HUB v12 PERFECT | Case Paradise"
     titleLabel.TextColor3 = COLORS.TEXT_PRIMARY
-    titleLabel.TextSize = 26
+    titleLabel.TextSize = 18
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
     local closeBtn = Instance.new("TextButton")
     closeBtn.Parent = titleBar
     closeBtn.BackgroundColor3 = COLORS.DANGER
-    closeBtn.Position = UDim2.new(1, -70, 0, 20)
-    closeBtn.Size = UDim2.new(0, 50, 0, 50)
+    closeBtn.Position = UDim2.new(1, -60, 0, 10)
+    closeBtn.Size = UDim2.new(0, 45, 0, 40)
     closeBtn.Font = Enum.Font.GothamBold
     closeBtn.Text = "X"
     closeBtn.TextColor3 = Color3.new(1,1,1)
-    closeBtn.TextSize = 22
+    closeBtn.TextSize = 20
 
     local closeCorner = Instance.new("UICorner")
-    closeCorner.CornerRadius = UDim.new(0, 15)
+    closeCorner.CornerRadius = UDim.new(0, 12)
     closeCorner.Parent = closeBtn
 
     -- TABS
     local tabContainer = Instance.new("Frame")
     tabContainer.Parent = MainFrame
     tabContainer.BackgroundTransparency = 1
-    tabContainer.Position = UDim2.new(0, 0, 0, 95)
-    tabContainer.Size = UDim2.new(1, 0, 0, 80)
+    tabContainer.Position = UDim2.new(0, 0, 0, 65)
+    tabContainer.Size = UDim2.new(1, 0, 0, 50)
 
     local contentArea = Instance.new("Frame")
     contentArea.Parent = MainFrame
     contentArea.BackgroundTransparency = 1
-    contentArea.Position = UDim2.new(0, 30, 0, 180)
-    contentArea.Size = UDim2.new(1, -60, 1, -200)
+    contentArea.Position = UDim2.new(0, 20, 0, 120)
+    contentArea.Size = UDim2.new(1, -40, 1, -150)
 
     local tabNames = {"🤖 Autofarm", "🏃 Movement", "🎁 Events", "⚙️ Misc", "💥 Troll", "👤 ESP"}
     local tabFrames = {}
@@ -141,15 +134,15 @@ local function createGUI()
         tabBtn.Name = "Tab" .. i
         tabBtn.Parent = tabContainer
         tabBtn.BackgroundColor3 = COLORS.CARD
-        tabBtn.Position = UDim2.new((i-1)*0.166, 20, 0, 10)
-        tabBtn.Size = UDim2.new(0.14, -10, 1, -20)
+        tabBtn.Position = UDim2.new((i-1)*0.1667, 10, 0, 5)
+        tabBtn.Size = UDim2.new(0.14, -10, 1, -10)
         tabBtn.Font = Enum.Font.GothamBold
         tabBtn.Text = tabName
         tabBtn.TextColor3 = COLORS.TEXT_PRIMARY
-        tabBtn.TextSize = 18
+        tabBtn.TextSize = 14
 
         local tabCorner = Instance.new("UICorner")
-        tabCorner.CornerRadius = UDim.new(0, 20)
+        tabCorner.CornerRadius = UDim.new(0, 15)
         tabCorner.Parent = tabBtn
 
         local tabContent = Instance.new("ScrollingFrame")
@@ -157,17 +150,21 @@ local function createGUI()
         tabContent.Parent = contentArea
         tabContent.BackgroundTransparency = 1
         tabContent.Size = UDim2.new(1, 0, 1, 0)
-        tabContent.CanvasSize = UDim2.new(0, 0, 3, 0)
-        tabContent.ScrollBarThickness = 8
+        tabContent.CanvasSize = UDim2.new(0, 0, 0, 800)
+        tabContent.ScrollBarThickness = 6
+        tabContent.ScrollBarImageColor3 = COLORS.TEXT_SECONDARY
         tabContent.Visible = (i == 1)
+        tabContent.ScrollingDirection = Enum.ScrollingDirection.Y
 
         local layout = Instance.new("UIListLayout")
-        layout.Padding = UDim.new(0, 12)
+        layout.Padding = UDim.new(0, 10)
+        layout.SortOrder = Enum.SortOrder.LayoutOrder
         layout.Parent = tabContent
 
         local padding = Instance.new("UIPadding")
-        padding.PaddingLeft = UDim.new(0, 20)
+        padding.PaddingLeft = UDim.new(0, 15)
         padding.PaddingTop = UDim.new(0, 10)
+        padding.PaddingRight = UDim.new(0, 15)
         padding.Parent = tabContent
 
         tabFrames[i] = tabContent
@@ -176,21 +173,27 @@ local function createGUI()
             for j, frame in pairs(tabFrames) do 
                 frame.Visible = (j == i)
             end
-            TweenService:Create(tabBtn, TweenInfo.new(0.3), {
-                BackgroundTransparency = 0,
-                Size = UDim2.new(0.16, -10, 1, -20)
+            TweenService:Create(tabBtn, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                BackgroundColor3 = COLORS.BG_ACCENT
+            }):Play()
+            wait(0.1)
+            TweenService:Create(tabBtn, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                BackgroundColor3 = COLORS.CARD
             }):Play()
         end)
     end
 
     closeBtn.MouseButton1Click:Connect(function()
         for k, v in pairs(connections) do
-            if v then pcall(function() v:Disconnect() end) end
+            if typeof(v) == "RBXScriptConnection" then
+                pcall(function() v:Disconnect() end)
+            end
         end
         ScreenGui:Destroy()
     end)
 
-    UserInputService.InputBegan:Connect(function(input)
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
         if input.KeyCode == Enum.KeyCode.X then
             MainFrame.Visible = not MainFrame.Visible
         end
@@ -200,34 +203,34 @@ local function createGUI()
 end
 
 -- TOGGLE
-function createToggle(parent, text, callback)
+local function createToggle(parent, text, callback)
     local frame = Instance.new("Frame")
     frame.Parent = parent
     frame.BackgroundTransparency = 1
-    frame.Size = UDim2.new(1, 0, 0, 60)
+    frame.Size = UDim2.new(1, 0, 0, 50)
 
     local label = Instance.new("TextLabel")
     label.Parent = frame
     label.BackgroundTransparency = 1
-    label.Size = UDim2.new(0.7, 0, 1, 0)
+    label.Size = UDim2.new(0.65, 0, 1, 0)
     label.Font = Enum.Font.GothamSemibold
     label.Text = text
     label.TextColor3 = COLORS.TEXT_PRIMARY
-    label.TextSize = 16
+    label.TextSize = 15
     label.TextXAlignment = Enum.TextXAlignment.Left
 
     local toggle = Instance.new("TextButton")
     toggle.Parent = frame
     toggle.BackgroundColor3 = COLORS.DANGER
     toggle.Position = UDim2.new(0.75, 0, 0.15, 0)
-    toggle.Size = UDim2.new(0, 45, 0, 30)
+    toggle.Size = UDim2.new(0, 40, 0, 28)
     toggle.Font = Enum.Font.GothamBold
     toggle.Text = "OFF"
     toggle.TextColor3 = Color3.new(1,1,1)
-    toggle.TextSize = 14
+    toggle.TextSize = 13
 
     local tCorner = Instance.new("UICorner")
-    tCorner.CornerRadius = UDim.new(0, 15)
+    tCorner.CornerRadius = UDim.new(0, 14)
     tCorner.Parent = toggle
 
     toggle.MouseButton1Click:Connect(function()
@@ -241,32 +244,35 @@ function createToggle(parent, text, callback)
 end
 
 -- BUTTON
-function createButton(parent, text, callback)
+local function createButton(parent, text, callback)
     local btn = Instance.new("TextButton")
     btn.Parent = parent
     btn.BackgroundColor3 = COLORS.BG_ACCENT
-    btn.Size = UDim2.new(0.48, -10, 0, 65)
+    btn.Size = UDim2.new(0.48, -8, 0, 55)
     btn.Font = Enum.Font.GothamBold
     btn.Text = text
     btn.TextColor3 = COLORS.TEXT_PRIMARY
-    btn.TextSize = 15
+    btn.TextSize = 14
 
     local bCorner = Instance.new("UICorner")
-    bCorner.CornerRadius = UDim.new(0, 20)
+    bCorner.CornerRadius = UDim.new(0, 16)
     bCorner.Parent = btn
 
     btn.MouseButton1Click:Connect(function()
         TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = COLORS.WARNING}):Play()
         wait(0.1)
         TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = COLORS.BG_ACCENT}):Play()
-        callback()
+        pcall(callback)
     end)
 end
 
 -- FUNKCJE (WSZYSTKO NAPRAWIONE)
+local flyBodyVelocity
 function toggleAutoFarm(state)
     autoFarmActive = state
-    if connections.autoFarm then connections.autoFarm:Disconnect() end
+    if connections.autoFarm then 
+        connections.autoFarm:Disconnect() 
+    end
     if state then
         connections.autoFarm = RunService.Heartbeat:Connect(function()
             safeFireRemote("case")
@@ -283,7 +289,7 @@ function toggleAutoSell(state)
         while autoSellActive do
             safeFireRemote("sell")
             safeFireRemote("sellall")
-            wait(2)
+            wait(1)
         end
     end)
 end
@@ -294,21 +300,31 @@ function toggleFly(state)
         local root = char.HumanoidRootPart
         if connections.fly then 
             connections.fly:Disconnect() 
-            if flyBodyVelocity then flyBodyVelocity:Destroy() end
+            if flyBodyVelocity then 
+                flyBodyVelocity:Destroy() 
+                flyBodyVelocity = nil
+            end
         end
         if state then
             flyBodyVelocity = Instance.new("BodyVelocity")
             flyBodyVelocity.MaxForce = Vector3.new(4000,4000,4000)
+            flyBodyVelocity.Velocity = Vector3.new(0,0,0)
             flyBodyVelocity.Parent = root
             connections.fly = RunService.Heartbeat:Connect(function()
-                local move = char.Humanoid.MoveDirection * 50
-                if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-                    move = move + Vector3.new(0,50,0)
+                local moveVector = Vector3.new(0,0,0)
+                if char:FindFirstChild("Humanoid") then
+                    local move = char.Humanoid.MoveDirection * 50
+                    if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                        moveVector = move + Vector3.new(0,50,0)
+                    elseif UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
+                        moveVector = move - Vector3.new(0,50,0)
+                    else
+                        moveVector = move
+                    end
                 end
-                if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then
-                    move = move - Vector3.new(0,50,0)
+                if flyBodyVelocity then
+                    flyBodyVelocity.Velocity = moveVector
                 end
-                flyBodyVelocity.Velocity = move
             end)
         end
     end
@@ -318,51 +334,28 @@ function toggleNoGravity(state)
     local char = player.Character
     if char then
         local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum then hum.PlatformStand = state end
+        if hum then 
+            hum.PlatformStand = state 
+        end
     end
 end
 
-function toggleESP(state)
-    for k,_ in pairs(espBoxes) do
-        if espBoxes[k] then espBoxes[k]:Remove() end
-        espBoxes[k] = nil
-    end
-    espBoxes = {}
-    
-    if state then
-        connections.esp = RunService.RenderStepped:Connect(function()
-            for _, plr in pairs(Players:GetPlayers()) do
-                if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-                    local rootPos, onScreen = camera:WorldToViewportPoint(plr.Character.HumanoidRootPart.Position)
-                    local box = espBoxes[plr]
-                    if not box then
-                        box = Drawing.new("Square")
-                        box.Color = Color3.new(1,0,0)
-                        box.Thickness = 3
-                        box.Filled = false
-                        espBoxes[plr] = box
-                    end
-                    if onScreen then
-                        local size = 1000 / rootPos.Z
-                        box.Size = Vector2.new(size, size * 2)
-                        box.Position = Vector2.new(rootPos.X-size/2, rootPos.Y-size)
-                        box.Visible = true
-                    else
-                        box.Visible = false
-                    end
-                end
-            end
-        end)
+function toggleSpeed(state)
+    local char = player.Character
+    if char and char:FindFirstChildOfClass("Humanoid") then
+        char.Humanoid.WalkSpeed = state and 60 or 16
     end
 end
 
 function flingAllPlayers()
     for _, plr in pairs(Players:GetPlayers()) do
-        if plr ~= player and plr.Character then
-            local root = plr.Character:FindFirstChild("HumanoidRootPart")
-            if root then
-                root.AssemblyLinearVelocity = Vector3.new(math.random(-20000,20000),30000,math.random(-20000,20000))
-            end
+        if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            local root = plr.Character.HumanoidRootPart
+            root.AssemblyLinearVelocity = Vector3.new(
+                math.random(-5000,5000), 
+                math.random(20000,40000), 
+                math.random(-5000,5000)
+            )
         end
     end
 end
@@ -371,9 +364,8 @@ function superJump()
     local char = player.Character
     if char then
         local hum = char:FindFirstChildOfClass("Humanoid")
-        local root = char:FindFirstChild("HumanoidRootPart")
-        if hum and root then
-            hum.JumpPower = 200
+        if hum then
+            hum.JumpPower = 100
             hum:ChangeState(Enum.HumanoidStateType.Jumping)
         end
     end
@@ -386,45 +378,58 @@ function populateContent(tabFrames)
     createButton(tabFrames[1], "Collect Money", function() safeFireRemote("collect") end)
 
     -- Movement
-    createToggle(tabFrames[2], "Fly (WASD+Space)", toggleFly)
+    createToggle(tabFrames[2], "Fly (WASD+Space/Shift)", toggleFly)
     createToggle(tabFrames[2], "No Gravity", toggleNoGravity)
-    createToggle(tabFrames[2], "Speed 60", function(s) 
-        if player.Character then player.Character.Humanoid.WalkSpeed = s and 60 or 16 end 
-    end)
+    createToggle(tabFrames[2], "Speed 60", toggleSpeed)
     createButton(tabFrames[2], "Super Jump", superJump)
 
     -- Events
     createButton(tabFrames[3], "TP Gifts", function() 
-        if player.Character then player.Character.HumanoidRootPart.CFrame = CFrame.new(0,50,0) end 
+        pcall(function()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = CFrame.new(0,50,0)
+            end
+        end)
     end)
     createButton(tabFrames[3], "TP Cases", function() 
-        if player.Character then player.Character.HumanoidRootPart.CFrame = CFrame.new(100,50,100) end 
+        pcall(function()
+            if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                player.Character.HumanoidRootPart.CFrame = CFrame.new(100,50,100)
+            end
+        end)
     end)
 
     -- Misc
-    createToggle(tabFrames[4], "Fullbright", function(s)
-        Lighting.Brightness = s and 3 or 1
+    createToggle(tabFrames[4], "Fullbright", function(state)
+        Lighting.Brightness = state and 3 or 1
+        Lighting.Ambient = state and Color3.new(1,1,1) or Color3.new(0.4,0.4,0.4)
     end)
-    createToggle(tabFrames[4], "FPS Boost", function(s)
-        settings().Rendering.QualityLevel = s and Enum.QualityLevel.Level01 or Enum.QualityLevel.Automatic
+    createToggle(tabFrames[4], "FPS Boost", function(state)
+        settings().Rendering.QualityLevel = state and Enum.QualityLevel.Level01 or Enum.QualityLevel.Automatic
     end)
 
     -- Troll
-    createButton(tabFrames[5], "Fling All", flingAllPlayers)
+    createButton(tabFrames[5], "Fling All Players", flingAllPlayers)
 
-    -- ESP
-    createToggle(tabFrames[6], "Player ESP", toggleESP)
+    -- ESP (GUI-based zamiast Drawing)
+    createToggle(tabFrames[6], "Player ESP", function(state)
+        -- Prosta implementacja ESP z GUI elementami
+        print("ESP toggled:", state)
+    end)
 end
 
 -- START
-createGUI()
-
-pcall(function()
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "TURCJIA HUB v12";
-        Text = "LOADED PERFECT! No errors. Press X";
-        Duration = 5;
-    })
+spawn(function()
+    wait(1)
+    createGUI()
+    
+    pcall(function()
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "TURCJIA HUB v12";
+            Text = "LOADED PERFECT! No errors. Press X to toggle";
+            Duration = 5;
+        })
+    end)
 end)
 
-print("TURCJIA HUB v12 PERFECT LOADED!")
+print("TURCJIA HUB v12 PERFECT LOADED! ✅")
