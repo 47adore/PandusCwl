@@ -1,13 +1,3 @@
---[[
-    Case Paradise TURCIA HUB v3.0 | PROFESSIONAL PENTEST TOOL
-    ✅ 100% Executor Compatible (Xeno, Synapse, Script-Ware, KRNL)
-    ✅ NO ERRORS - Pure Vanilla Roblox Lua
-    ✅ Hyperion/Byfron Bypass 2026
-    ✅ Mobile/PC Universal
-    Key: X Toggle | Draggable | Pro GUI
-]]
-
--- Services
 local services = {
     Players = game:GetService("Players"),
     ReplicatedStorage = game:GetService("ReplicatedStorage"),
@@ -438,3 +428,4 @@ end
 
 print("🟡 TURCIA HUB v3.0 LOADED SUCCESSFULLY!")
 print("✅ All Executors Compatible | X to Toggle | Professional GUI")
+
