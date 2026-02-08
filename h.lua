@@ -26,6 +26,7 @@ local function safeFire(name, ...)
     end)
 end
 
+-- ========== GUI SETUP ==========
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "TurciaHub"
 ScreenGui.ResetOnSpawn = false
@@ -55,6 +56,7 @@ stroke.Color = Color3.fromRGB(255, 215, 0)
 stroke.Thickness = 2.5
 stroke.Parent = MainFrame
 
+-- Title Bar
 local TitleBar = Instance.new("Frame")
 TitleBar.Size = UDim2.new(1, 0, 0, 55)
 TitleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 60)
@@ -67,7 +69,7 @@ local TitleText = Instance.new("TextLabel")
 TitleText.Size = UDim2.new(1, -90, 1, 0)
 TitleText.Position = UDim2.new(0, 20, 0, 0)
 TitleText.BackgroundTransparency = 1
-TitleText.Text = "TURCIA HUB | CASE PARADISE"
+TitleText.Text = "TURCIA HUB | CASE PARADISE [FIXED]"
 TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
 TitleText.TextScaled = true
 TitleText.Font = Enum.Font.GothamBold
@@ -88,6 +90,7 @@ CloseBtn.Parent = TitleBar
 addCorner(CloseBtn, 10)
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
+-- Tab System
 local TabFrame = Instance.new("Frame")
 TabFrame.Size = UDim2.new(1, 0, 0, 50)
 TabFrame.Position = UDim2.new(0, 0, 0, 55)
@@ -120,7 +123,9 @@ local TabData = {
 
 local ActiveContent = nil
 local TabButtons = {}
+local TabContents = {}
 
+-- Create Tabs
 for i, tab in ipairs(TabData) do
     local Btn = Instance.new("TextButton")
     Btn.Name = tab.Name
@@ -142,6 +147,7 @@ for i, tab in ipairs(TabData) do
     BtnStroke.Parent = Btn
     TabButtons[i] = {Btn, tab}
     
+    -- Content Frame
     local Content = Instance.new("Frame")
     Content.Name = tab.Name .. "_Content"
     Content.Size = UDim2.new(1, -25, 0, 450)
@@ -149,6 +155,7 @@ for i, tab in ipairs(TabData) do
     Content.LayoutOrder = i
     Content.Visible = i == 1
     Content.Parent = ContentScroll
+    TabContents[tab.Name] = Content
     
     local ContentLayout = Instance.new("UIListLayout")
     ContentLayout.Padding = UDim.new(0, 10)
@@ -157,16 +164,22 @@ for i, tab in ipairs(TabData) do
     Btn.MouseButton1Click:Connect(function()
         for j, tbtn in ipairs(TabButtons) do
             tbtn[1].BackgroundColor3 = Color3.fromRGB(45, 45, 70)
-            ContentScroll:FindFirstChild(tbtn[2].Name .. "_Content").Visible = false
+            TabContents[tbtn[2].Name].Visible = false
         end
         Btn.BackgroundColor3 = tab.Color
         Content.Visible = true
     end)
 end
 
+-- ========== GLOBAL STATE ==========
 local Toggles = {}
 local Sliders = {}
+local Connections = {}
+local FlyConnection = nil
+local NoclipConnection = nil
+local FarmConnections = {}
 
+-- ========== UI COMPONENTS ==========
 local function CreateToggle(parent, text, callback)
     local Frame = Instance.new("Frame")
     Frame.Size = UDim2.new(1, 0, 0, 65)
@@ -200,15 +213,13 @@ local function CreateToggle(parent, text, callback)
     
     addCorner(Toggle, 12)
     
-    local state = false
     Toggles[text] = false
     
     Toggle.MouseButton1Click:Connect(function()
-        state = not state
-        Toggles[text] = state
-        Toggle.Text = state and "ON" or "OFF"
-        Toggle.BackgroundColor3 = state and Color3.fromRGB(60, 255, 60) or Color3.fromRGB(200, 60, 60)
-        if callback then callback(state) end
+        Toggles[text] = not Toggles[text]
+        Toggle.Text = Toggles[text] and "ON" or "OFF"
+        Toggle.BackgroundColor3 = Toggles[text] and Color3.fromRGB(60, 255, 60) or Color3.fromRGB(200, 60, 60)
+        if callback then callback(Toggles[text]) end
     end)
 end
 
@@ -265,7 +276,7 @@ local function CreateSlider(parent, text, min, max, default, callback)
     local function updateSlider()
         local percent = (value - min) / (max - min)
         Fill.Size = UDim2.new(percent, 0, 1, 0)
-        ValueLabel.Text = tostring(value)
+        ValueLabel.Text = tostring(math.floor(value))
         Sliders[text] = value
         if callback then callback(value) end
     end
@@ -286,33 +297,43 @@ local function CreateSlider(parent, text, min, max, default, callback)
         if dragging and SliderBar.AbsoluteSize.X > 0 then
             local mousePos = UserInputService:GetMouseLocation()
             local percent = math.clamp((mousePos.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
-            value = math.floor(min + (max - min) * percent)
+            value = min + (max - min) * percent
             updateSlider()
         end
     end)
 end
 
-CreateToggle(TabData[1][2].Name .. "_Content", "Auto Farm Money", function(state)
-    spawn(function()
-        while Toggles["Auto Farm Money"] do
+-- ========== FARM TAB ==========
+CreateToggle(TabContents.FARM, "Auto Farm Money", function(state)
+    if FarmConnections["AutoFarmMoney"] then
+        FarmConnections["AutoFarmMoney"]:Disconnect()
+        FarmConnections["AutoFarmMoney"] = nil
+    end
+    if state then
+        FarmConnections["AutoFarmMoney"] = RunService.Heartbeat:Connect(function()
             safeFire("FarmMoney")
             task.wait(Sliders["Farm Delay"] or 0.1)
-        end
-    end)
+        end)
+    end
 end)
 
-CreateToggle(TabData[1][2].Name .. "_Content", "Auto Open Cases", function(state)
-    spawn(function()
-        while Toggles["Auto Open Cases"] do
+CreateToggle(TabContents.FARM, "Auto Open Cases", function(state)
+    if FarmConnections["AutoOpenCases"] then
+        FarmConnections["AutoOpenCases"]:Disconnect()
+        FarmConnections["AutoOpenCases"] = nil
+    end
+    if state then
+        FarmConnections["AutoOpenCases"] = RunService.Heartbeat:Connect(function()
             safeFire("OpenCase")
             task.wait(0.15)
-        end
-    end)
+        end)
+    end
 end)
 
-CreateSlider(TabData[1][2].Name .. "_Content", "Farm Delay", 0.01, 2, 0.1, nil)
+CreateSlider(TabContents.FARM, "Farm Delay", 0.01, 2, 0.1, nil)
 
-CreateSlider(TabData[4][2].Name .. "_Content", "WalkSpeed", 16, 500, 100, function(v)
+-- ========== MOVEMENT TAB ==========
+CreateSlider(TabContents.MOVEMENT, "WalkSpeed", 16, 500, 100, function(v)
     pcall(function()
         if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
             LocalPlayer.Character.Humanoid.WalkSpeed = v
@@ -320,61 +341,73 @@ CreateSlider(TabData[4][2].Name .. "_Content", "WalkSpeed", 16, 500, 100, functi
     end)
 end)
 
-CreateToggle(TabData[4][2].Name .. "_Content", "Fly", function(state)
+local FlyBodyVelocity = nil
+CreateToggle(TabContents.MOVEMENT, "Fly", function(state)
+    if FlyConnection then
+        FlyConnection:Disconnect()
+        FlyConnection = nil
+    end
+    
+    if FlyBodyVelocity then
+        FlyBodyVelocity:Destroy()
+        FlyBodyVelocity = nil
+    end
+    
     if state then
-        spawn(function()
-            local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-            local root = char:WaitForChild("HumanoidRootPart")
-            local bv = Instance.new("BodyVelocity")
-            bv.MaxForce = Vector3.new(4000, 4000, 4000)
-            bv.Velocity = Vector3.new(0,0,0)
-            bv.Parent = root
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local root = char:WaitForChild("HumanoidRootPart")
+        FlyBodyVelocity = Instance.new("BodyVelocity")
+        FlyBodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
+        FlyBodyVelocity.Velocity = Vector3.new(0,0,0)
+        FlyBodyVelocity.Parent = root
+        
+        FlyConnection = RunService.Heartbeat:Connect(function()
+            if not Toggles.Fly then return end
             
-            RunService.Heartbeat:Connect(function()
-                if not Toggles.Fly then 
-                    pcall(function() bv:Destroy() end)
-                    return 
-                end
-                
-                local cam = workspace.CurrentCamera
-                local vel = Vector3.new(0,0,0)
-                
-                if UserInputService:IsKeyDown(Enum.KeyCode.W) then vel = vel + cam.CFrame.LookVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.S) then vel = vel - cam.CFrame.LookVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.A) then vel = vel - cam.CFrame.RightVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.D) then vel = vel + cam.CFrame.RightVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.Space) then vel = vel + Vector3.new(0,50,0) end
-                if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then vel = vel - Vector3.new(0,50,0) end
-                
-                bv.Velocity = vel
-            end)
+            local cam = workspace.CurrentCamera
+            local vel = Vector3.new(0,0,0)
+            
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then vel = vel + cam.CFrame.LookVector * 50 end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then vel = vel - cam.CFrame.LookVector * 50 end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then vel = vel - cam.CFrame.RightVector * 50 end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then vel = vel + cam.CFrame.RightVector * 50 end
+            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then vel = vel + Vector3.new(0,50,0) end
+            if UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) then vel = vel - Vector3.new(0,50,0) end
+            
+            FlyBodyVelocity.Velocity = vel
         end)
     end
 end)
 
-CreateToggle(TabData[4][2].Name .. "_Content", "Noclip", function(state)
-    spawn(function()
-        while Toggles.Noclip do
+CreateToggle(TabContents.MOVEMENT, "Noclip", function(state)
+    if NoclipConnection then
+        NoclipConnection:Disconnect()
+        NoclipConnection = nil
+    end
+    
+    if state then
+        NoclipConnection = RunService.Stepped:Connect(function()
             pcall(function()
                 if LocalPlayer.Character then
                     for _, part in pairs(LocalPlayer.Character:GetChildren()) do
-                        if part:IsA("BasePart") and part ~= LocalPlayer.Character.HumanoidRootPart then
+                        if part:IsA("BasePart") and part ~= LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                             part.CanCollide = false
                         end
                     end
                 end
             end)
-            task.wait()
-        end
-    end)
+        end)
+    end
 end)
 
-CreateToggle(TabData[5][2].Name .. "_Content", "Fullbright", function(state)
+-- ========== MISC TAB ==========
+CreateToggle(TabContents.MISC, "Fullbright", function(state)
     Lighting.Brightness = state and 3 or 1
     Lighting.GlobalShadows = not state
+    Lighting.FogEnd = state and 100000 or 100000
 end)
 
-CreateToggle(TabData[5][2].Name .. "_Content", "FPS Boost", function(state)
+CreateToggle(TabContents.MISC, "FPS Boost", function(state)
     pcall(function()
         settings().Rendering.QualityLevel = state and Enum.SavedQualitySetting.Performance or Enum.SavedQualitySetting.Automatic
     end)
@@ -383,31 +416,47 @@ end)
 local RejoinBtn = Instance.new("TextButton")
 RejoinBtn.Size = UDim2.new(1, 0, 0, 55)
 RejoinBtn.BackgroundColor3 = Color3.fromRGB(200, 80, 120)
-RejoinBtn.Text = "REJOIN SERVER"
+RejoinBtn.Text = "🔄 REJOIN SERVER"
 RejoinBtn.TextColor3 = Color3.new(1,1,1)
 RejoinBtn.TextScaled = true
 RejoinBtn.Font = Enum.Font.GothamBold
 RejoinBtn.BorderSizePixel = 0
-RejoinBtn.Parent = TabData[5][2].Name .. "_Content"
+RejoinBtn.Parent = TabContents.MISC
 
 addCorner(RejoinBtn, 14)
 RejoinBtn.MouseButton1Click:Connect(function()
     TeleportService:Teleport(game.PlaceId, LocalPlayer)
 end)
 
-UserInputService.InputBegan:Connect(function(key)
+-- ========== GLOBAL CONTROLS ==========
+UserInputService.InputBegan:Connect(function(key, processed)
+    if processed then return end
     if key.KeyCode == Enum.KeyCode.X then
         ScreenGui.Enabled = not ScreenGui.Enabled
     end
 end)
 
+-- ========== CHARACTER RELOAD ==========
 LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(2)
-    pcall(function()
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid.WalkSpeed = Sliders.WalkSpeed or 100
-        end
-    end)
+    task.wait(1)
+    -- Apply WalkSpeed
+    if Sliders["WalkSpeed"] and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.WalkSpeed = Sliders["WalkSpeed"]
+    end
 end)
 
-print("TURCIA HUB LOADED")
+print("✅ TURCIA HUB [FIXED VERSION] LOADED SUCCESSFULLY!")
+print("🎮 Toggle GUI: X key")
+print("🔥 Features: Auto Farm, Fly, Speed, Noclip, Fullbright & more!")
+
+-- Cleanup on destroy
+ScreenGui.AncestryChanged:Connect(function()
+    if not ScreenGui.Parent then
+        -- Cleanup all connections
+        for _, conn in pairs(FarmConnections) do
+            if conn then conn:Disconnect() end
+        end
+        if FlyConnection then FlyConnection:Disconnect() end
+        if NoclipConnection then NoclipConnection:Disconnect() end
+    end
+end)
