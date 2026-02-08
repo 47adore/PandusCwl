@@ -35,7 +35,7 @@ local COLORS = {
 -- UTWÓRZ GUI
 local function createGUI()
     ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "TurcjaHubV8"
+    ScreenGui.Name = "TurcjaHub"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.DisplayOrder = 999
     ScreenGui.Parent = playerGui
@@ -79,9 +79,9 @@ local function createGUI()
     titleLabel.Size = UDim2.new(0.85, 0, 1, 0)
     titleLabel.Position = UDim2.new(0, 30, 0, 0)
     titleLabel.Font = Enum.Font.GothamBold
-    titleLabel.Text = "🌙 Turcja Hub v8 | PERFECT ZERO ERROR"
+    titleLabel.Text = "🌙 Turcja Hub"
     titleLabel.TextColor3 = COLORS.TEXT
-    titleLabel.TextSize = 20
+    titleLabel.TextSize = 21
 
     local closeBtn = Instance.new("TextButton")
     closeBtn.Parent = titleBar
@@ -111,7 +111,7 @@ local function createGUI()
     contentArea.Position = UDim2.new(0, 20, 0, 140)
     contentArea.Size = UDim2.new(1, -40, 1, -160)
 
-    local tabNames = {"🤖 Autofarm", "🏃 Movement", "🎉 Events", "⚙️ Misc", "👻 Troll", "👤 Player"}
+    local tabNames = {"Autofarm", "Movement", "Events", "Misc", "Troll", "Player"}
     local tabFrames = {}
     local currentTab = 1
 
@@ -428,16 +428,16 @@ function populateContent(tabFrames)
     createToggle(tabFrames[1], "Auto Sell Inventory", toggleAutoSell)
 
     -- Movement
-    createToggle(tabFrames[2], "Fly (WASD+Space/Shift)", toggleFly)
+    createToggle(tabFrames[2], "Fly", toggleFly)
     createToggle(tabFrames[2], "No Gravity", toggleNoGravity)
 
     -- Events
-    createButton(tabFrames[3], "🧸 TP Gifts", function() tpEvent("Gifts") end)
-    createButton(tabFrames[3], "🎪 TP Events", function() tpEvent("Events") end)
+    createButton(tabFrames[3], "TP Gifts", function() tpEvent("Gifts") end)
+    createButton(tabFrames[3], "TP Events", function() tpEvent("Events") end)
 
     -- Troll
-    createButton(tabFrames[5], "💥 Fling All Players", flingAllPlayers)
-    createButton(tabFrames[5], "🚀 Super Jump", superJump)
+    createButton(tabFrames[5], "Fling All Players", flingAllPlayers)
+    createButton(tabFrames[5], "Super Jump", superJump)
 
     -- Player
     createToggle(tabFrames[6], "Speed Boost x3", toggleSpeedBoost)
@@ -455,4 +455,5 @@ spawn(function()
     })
 end)
 
-print("🌙 Turcja Hub v8 LOADED - ZERO ERRORS!")
+print("🌙 Turcja Hub Loaded")
+
