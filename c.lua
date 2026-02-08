@@ -1,42 +1,23 @@
--- 🔥 TURCIA HUB v6.0 | CASE PARADISE | 100% CORE GUI FIXED v2 🔥
--- ✅ ZERO ERRORS - ULTRA SAFE EXECUTOR
--- ✅ LINE 1 FIXED - MINIMAL SERVICES
--- ✅ MOBILE/PC ALL EXECUTORS 2026
+task.wait(1)
 
-task.wait(0.1)
-
--- ULTRA SAFE CLEANUP
 pcall(function()
     local core = game:GetService("CoreGui")
-    if core:FindFirstChild("TurciaHubV6") then core:FindFirstChild("TurciaHubV6"):Destroy() end
+    pcall(function() core:FindFirstChild("TurciaHub"):Destroy() end)
 end)
 
--- MINIMAL SAFE SERVICES
-local success, services = pcall(function()
-    return {
-        CoreGui = game:GetService("CoreGui"),
-        Players = game:GetService("Players"),
-        ReplicatedStorage = game:GetService("ReplicatedStorage"),
-        RunService = game:GetService("RunService"),
-        UserInputService = game:GetService("UserInputService"),
-        TweenService = game:GetService("TweenService"),
-        Lighting = game:GetService("Lighting"),
-        TeleportService = game:GetService("TeleportService")
-    }
-end)
-
-if not success then return end
-
-local CoreGui, Players, ReplicatedStorage, RunService, UserInputService, TweenService, Lighting, TeleportService = 
-    services.CoreGui, services.Players, services.ReplicatedStorage, services.RunService, services.UserInputService,
-    services.TweenService, services.Lighting, services.TeleportService
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+local TeleportService = game:GetService("TeleportService")
 
 local LocalPlayer = Players.LocalPlayer
 
--- SAFE REMOTE FIRE
 local function safeFire(name, ...)
     pcall(function()
-        task.wait()
         local remotes = ReplicatedStorage:FindFirstChild("Remotes", true) or ReplicatedStorage
         local remote = remotes:FindFirstChild(name, true)
         if remote and remote:IsA("RemoteEvent") then 
@@ -45,20 +26,12 @@ local function safeFire(name, ...)
     end)
 end
 
--- CREATE GUI - BULLETPROOF
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "TurciaHubV6"
+ScreenGui.Name = "TurciaHub"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.DisplayOrder = 2147483647
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = CoreGui
 
-pcall(function()
-    ScreenGui.Parent = CoreGui
-end)
-
-if not ScreenGui.Parent then return end
-
--- MAIN FRAME
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "Main"
 MainFrame.Size = UDim2.new(0, 650, 0, 550)
@@ -69,12 +42,10 @@ MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
--- CORNERS + EFFECTS
 local function addCorner(parent, radius)
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, radius or 12)
     corner.Parent = parent
-    return corner
 end
 
 addCorner(MainFrame, 16)
@@ -84,7 +55,6 @@ stroke.Color = Color3.fromRGB(255, 215, 0)
 stroke.Thickness = 2.5
 stroke.Parent = MainFrame
 
--- TITLE BAR
 local TitleBar = Instance.new("Frame")
 TitleBar.Size = UDim2.new(1, 0, 0, 55)
 TitleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 60)
@@ -97,19 +67,18 @@ local TitleText = Instance.new("TextLabel")
 TitleText.Size = UDim2.new(1, -90, 1, 0)
 TitleText.Position = UDim2.new(0, 20, 0, 0)
 TitleText.BackgroundTransparency = 1
-TitleText.Text = "🔥 TURCIA HUB v6.0 | CASE PARADISE 🔥"
+TitleText.Text = "TURCIA HUB | CASE PARADISE"
 TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
 TitleText.TextScaled = true
 TitleText.Font = Enum.Font.GothamBold
 TitleText.TextXAlignment = Enum.TextXAlignment.Left
 TitleText.Parent = TitleBar
 
--- CLOSE BUTTON
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Size = UDim2.new(0, 45, 0, 45)
 CloseBtn.Position = UDim2.new(1, -55, 0, 5)
 CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 65, 65)
-CloseBtn.Text = "✕"
+CloseBtn.Text = "X"
 CloseBtn.TextColor3 = Color3.new(1,1,1)
 CloseBtn.TextScaled = true
 CloseBtn.Font = Enum.Font.GothamBold
@@ -119,7 +88,6 @@ CloseBtn.Parent = TitleBar
 addCorner(CloseBtn, 10)
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
--- TABS SYSTEM
 local TabFrame = Instance.new("Frame")
 TabFrame.Size = UDim2.new(1, 0, 0, 50)
 TabFrame.Position = UDim2.new(0, 0, 0, 55)
@@ -142,21 +110,18 @@ ListLayout.Padding = UDim.new(0, 12)
 ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 ListLayout.Parent = ContentScroll
 
--- TAB DATA
 local TabData = {
-    {Name="FARM 💰", Color=Color3.fromRGB(60, 255, 60)},
-    {Name="QUESTS ✅", Color=Color3.fromRGB(60, 150, 255)},
-    {Name="EVENTS 🎁", Color=Color3.fromRGB(255, 180, 60)},
-    {Name="MOVEMENT ✈️", Color=Color3.fromRGB(255, 100, 255)},
-    {Name="MISC ⚙️", Color=Color3.fromRGB(255, 215, 0)}
+    {Name="FARM", Color=Color3.fromRGB(60, 255, 60)},
+    {Name="QUESTS", Color=Color3.fromRGB(60, 150, 255)},
+    {Name="EVENTS", Color=Color3.fromRGB(255, 180, 60)},
+    {Name="MOVEMENT", Color=Color3.fromRGB(255, 100, 255)},
+    {Name="MISC", Color=Color3.fromRGB(255, 215, 0)}
 }
 
 local ActiveContent = nil
 local TabButtons = {}
 
--- CREATE TABS
 for i, tab in ipairs(TabData) do
-    -- TAB BUTTON
     local Btn = Instance.new("TextButton")
     Btn.Name = tab.Name
     Btn.Size = UDim2.new(0, 115, 1, 0)
@@ -177,7 +142,6 @@ for i, tab in ipairs(TabData) do
     BtnStroke.Parent = Btn
     TabButtons[i] = {Btn, tab}
     
-    -- TAB CONTENT
     local Content = Instance.new("Frame")
     Content.Name = tab.Name .. "_Content"
     Content.Size = UDim2.new(1, -25, 0, 450)
@@ -190,7 +154,6 @@ for i, tab in ipairs(TabData) do
     ContentLayout.Padding = UDim.new(0, 10)
     ContentLayout.Parent = Content
     
-    -- CLICK HANDLER
     Btn.MouseButton1Click:Connect(function()
         for j, tbtn in ipairs(TabButtons) do
             tbtn[1].BackgroundColor3 = Color3.fromRGB(45, 45, 70)
@@ -198,11 +161,9 @@ for i, tab in ipairs(TabData) do
         end
         Btn.BackgroundColor3 = tab.Color
         Content.Visible = true
-        ActiveContent = Content
     end)
 end
 
--- UI COMPONENTS
 local Toggles = {}
 local Sliders = {}
 
@@ -331,7 +292,6 @@ local function CreateSlider(parent, text, min, max, default, callback)
     end)
 end
 
--- FARM TAB
 CreateToggle(TabData[1][2].Name .. "_Content", "Auto Farm Money", function(state)
     spawn(function()
         while Toggles["Auto Farm Money"] do
@@ -352,7 +312,6 @@ end)
 
 CreateSlider(TabData[1][2].Name .. "_Content", "Farm Delay", 0.01, 2, 0.1, nil)
 
--- MOVEMENT TAB
 CreateSlider(TabData[4][2].Name .. "_Content", "WalkSpeed", 16, 500, 100, function(v)
     pcall(function()
         if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
@@ -373,7 +332,7 @@ CreateToggle(TabData[4][2].Name .. "_Content", "Fly", function(state)
             
             RunService.Heartbeat:Connect(function()
                 if not Toggles.Fly then 
-                    bv:Destroy() 
+                    pcall(function() bv:Destroy() end)
                     return 
                 end
                 
@@ -410,7 +369,6 @@ CreateToggle(TabData[4][2].Name .. "_Content", "Noclip", function(state)
     end)
 end)
 
--- MISC TAB
 CreateToggle(TabData[5][2].Name .. "_Content", "Fullbright", function(state)
     Lighting.Brightness = state and 3 or 1
     Lighting.GlobalShadows = not state
@@ -425,7 +383,7 @@ end)
 local RejoinBtn = Instance.new("TextButton")
 RejoinBtn.Size = UDim2.new(1, 0, 0, 55)
 RejoinBtn.BackgroundColor3 = Color3.fromRGB(200, 80, 120)
-RejoinBtn.Text = "🔄 REJOIN SERVER"
+RejoinBtn.Text = "REJOIN SERVER"
 RejoinBtn.TextColor3 = Color3.new(1,1,1)
 RejoinBtn.TextScaled = true
 RejoinBtn.Font = Enum.Font.GothamBold
@@ -437,14 +395,12 @@ RejoinBtn.MouseButton1Click:Connect(function()
     TeleportService:Teleport(game.PlaceId, LocalPlayer)
 end)
 
--- X KEY TOGGLE
 UserInputService.InputBegan:Connect(function(key)
     if key.KeyCode == Enum.KeyCode.X then
         ScreenGui.Enabled = not ScreenGui.Enabled
     end
 end)
 
--- SPEED ON SPAWN
 LocalPlayer.CharacterAdded:Connect(function()
     task.wait(2)
     pcall(function()
@@ -454,5 +410,4 @@ LocalPlayer.CharacterAdded:Connect(function()
     end)
 end)
 
-print("✅ TURCIA HUB v6.0 LOADED - ZERO ERRORS!")
-print("🎯 Press X to toggle | All features working!")
+print("TURCIA HUB LOADED")
