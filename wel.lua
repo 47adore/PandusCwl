@@ -1,5 +1,5 @@
 -- Case Paradise | TURCJIA HUB v13 | PROFESSIONAL ULTIMATE EDITION
--- ZAawansowane GUI + Wszystkie funkcje + Profesjonalne optymalizacje
+-- Advanced GUI + All features + Professional optimizations
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -10,24 +10,25 @@ local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
 local TeleportService = game:GetService("TeleportService")
 local VirtualUser = game:GetService("VirtualUser")
+local Debris = game:GetService("Debris")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local camera = Workspace.CurrentCamera
 
--- PROFESJONALNE ZMIENNE
+-- PROFESSIONAL VARIABLES
 local ScreenGui, MainFrame, toggles = {}, connections = {}, debounce = {}
 local espBoxes, espTracers, espLabels, espHealthBars = {}, {}, {}, {}
 local flyBodyVelocity, noclipConnection
 local autoFarmActive, autoSellActive = false, false
 
--- PROFESJONALNA PALETA KOLORÓW (PREMIUM)
+-- PROFESSIONAL COLOR PALETTE
 local COLORS = {
     PRIMARY = Color3.fromRGB(15, 25, 45),
     SECONDARY = Color3.fromRGB(35, 45, 70),
     ACCENT = Color3.fromRGB(55, 70, 110),
     CARD = Color3.fromRGB(25, 35, 55),
     SUCCESS = Color3.fromRGB(80, 240, 140),
-    DANGER = Color3.fromRGB(260, 90, 90),
+    DANGER = Color3.fromRGB(240, 90, 90),
     WARNING = Color3.fromRGB(270, 220, 90),
     INFO = Color3.fromRGB(120, 180, 270),
     TEXT_PRIMARY = Color3.fromRGB(255, 255, 255),
@@ -38,7 +39,7 @@ local COLORS = {
     ESP_SECONDARY = Color3.fromRGB(255, 180, 70)
 }
 
--- ZAAWANSOWANE FIRE REMOTE Z KASOWANIEM
+-- ADVANCED FIRE REMOTE WITH CLEANUP
 local function advancedFireRemote(name, ...)
     pcall(function()
         for _, obj in pairs(ReplicatedStorage:GetDescendants()) do
@@ -54,7 +55,7 @@ local function advancedFireRemote(name, ...)
     end)
 end
 
--- PROFESJONALNE GUI Z ANIMACJAMI
+-- PROFESSIONAL GUI WITH ANIMATIONS
 local function createProfessionalGUI()
     ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "TurcjaHubV13Pro"
@@ -72,7 +73,6 @@ local function createProfessionalGUI()
     MainFrame.Size = UDim2.new(0, 1050, 0, 780)
     MainFrame.ClipsDescendants = true
 
-    -- PROFESJONALNY GRADIENT
     local gradient = Instance.new("UIGradient")
     gradient.Color = ColorSequence.new{
         ColorSequenceKeypoint.new(0, COLORS.GRADIENT_A),
@@ -92,7 +92,6 @@ local function createProfessionalGUI()
     mainStroke.Transparency = 0.1
     mainStroke.Parent = MainFrame
 
-    -- TITLE BAR Z PROFESJONALNYMI EFEKTAMI
     local titleBar = Instance.new("Frame")
     titleBar.Name = "TitleBarPro"
     titleBar.Parent = MainFrame
@@ -110,21 +109,19 @@ local function createProfessionalGUI()
     titleCorner.CornerRadius = UDim.new(0, 40)
     titleCorner.Parent = titleBar
 
-    -- GŁÓWNY TYTUŁ
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Parent = titleBar
     titleLabel.BackgroundTransparency = 1
     titleLabel.Position = UDim2.new(0, 60, 0, 0)
     titleLabel.Size = UDim2.new(0.55, 0, 1, 0)
     titleLabel.Font = Enum.Font.GothamBlack
-    titleLabel.Text = "⭐ TURCJIA HUB v13 | PROFESSIONAL EDITION"
+    titleLabel.Text = "TURCJIA HUB v13 | PROFESSIONAL EDITION"
     titleLabel.TextColor3 = COLORS.TEXT_PRIMARY
     titleLabel.TextSize = 32
     titleLabel.TextStrokeTransparency = 0.6
     titleLabel.TextStrokeColor3 = Color3.new(0,0,0)
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- STATUS BAR Z PROFESJONALNYMI IKONAMI
     local statusFrame = Instance.new("Frame")
     statusFrame.Parent = titleBar
     statusFrame.BackgroundTransparency = 1
@@ -135,18 +132,17 @@ local function createProfessionalGUI()
     statusLabel.Parent = statusFrame
     statusLabel.BackgroundTransparency = 1
     statusLabel.Font = Enum.Font.GothamBold
-    statusLabel.Text = "✅ LOADED PERFECTLY | 60+ FEATURES | Press X"
+    statusLabel.Text = "LOADED PERFECTLY | 60+ FEATURES | Press X"
     statusLabel.TextColor3 = COLORS.SUCCESS
     statusLabel.TextSize = 20
 
-    -- ZAMKNIJ Z ANIMACJĄ
     local closeBtn = Instance.new("TextButton")
     closeBtn.Parent = titleBar
     closeBtn.BackgroundColor3 = COLORS.DANGER
     closeBtn.Position = UDim2.new(1, -90, 0, 25)
     closeBtn.Size = UDim2.new(0, 65, 0, 65)
     closeBtn.Font = Enum.Font.GothamBold
-    closeBtn.Text = "✕"
+    closeBtn.Text = "X"
     closeBtn.TextColor3 = Color3.new(1,1,1)
     closeBtn.TextSize = 28
 
@@ -154,7 +150,6 @@ local function createProfessionalGUI()
     closeCorner.CornerRadius = UDim.new(0, 25)
     closeCorner.Parent = closeBtn
 
-    -- PROFESJONALNY SYSTEM TABÓW
     local tabContainer = Instance.new("Frame")
     tabContainer.Name = "TabContainerPro"
     tabContainer.Parent = MainFrame
@@ -169,10 +164,9 @@ local function createProfessionalGUI()
     contentArea.Position = UDim2.new(0, 50, 0, 220)
     contentArea.Size = UDim2.new(1, -100, 1, -250)
 
-    local tabNames = {"🤖 Autofarm", "🏃 Movement", "🎁 Events", "⚙️ Misc", "💥 Troll", "👤 Player", "📊 Stats"}
+    local tabNames = {"Autofarm", "Movement", "Events", "Misc", "Troll", "Player", "Stats"}
     local tabFrames = {}
 
-    -- TWORZENIE TABÓW Z ANIMACJAMI
     for i, tabName in ipairs(tabNames) do
         local tabBtn = Instance.new("TextButton")
         tabBtn.Name = "TabPro" .. i
@@ -222,12 +216,15 @@ local function createProfessionalGUI()
 
         tabFrames[i] = tabContent
 
-        -- ANIMOWANY PRZEŁĄCZNIK TABÓW
         tabBtn.MouseButton1Click:Connect(function()
             for j, frame in pairs(tabFrames) do 
                 frame.Visible = false
-                TweenService:Create(tabFrames[j].Parent:FindFirstChild("TabPro" .. j), 
-                    TweenInfo.new(0.3), {Size = UDim2.new(0.12, -20, 1, -50)}):Play()
+                local tabButton = tabContainer:FindFirstChild("TabPro" .. j)
+                if tabButton then
+                    TweenService:Create(tabButton, TweenInfo.new(0.3), {
+                        Size = UDim2.new(0.12, -20, 1, -50)
+                    }):Play()
+                end
             end
             tabContent.Visible = true
             TweenService:Create(tabBtn, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
@@ -237,17 +234,19 @@ local function createProfessionalGUI()
         end)
     end
 
-    -- ZAMYKANIE Z ANIMACJĄ
     closeBtn.MouseButton1Click:Connect(function()
         TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
             Size = UDim2.new(0, 0, 0, 0)
         }):Play()
-        wait(0.5)
-        for _, conn in pairs(connections) do if conn then pcall(conn.Disconnect, conn) end end
+        task.wait(0.5)
+        for _, conn in pairs(connections) do 
+            if conn and conn.Disconnect then 
+                pcall(conn.Disconnect, conn) 
+            end 
+        end
         ScreenGui:Destroy()
     end)
 
-    -- TOGGLE GUI (X)
     UserInputService.InputBegan:Connect(function(input)
         if input.KeyCode == Enum.KeyCode.X then
             MainFrame.Visible = not MainFrame.Visible
@@ -257,7 +256,7 @@ local function createProfessionalGUI()
     populateProfessionalContent(tabFrames)
 end
 
--- PROFESJONALNY TOGGLE Z ANIMACJAMI
+-- PROFESSIONAL TOGGLE WITH ANIMATIONS
 function createProfessionalToggle(parent, text, callback)
     local container = Instance.new("Frame")
     container.Parent = parent
@@ -270,7 +269,7 @@ function createProfessionalToggle(parent, text, callback)
     label.Position = UDim2.new(0, 0, 0, 0)
     label.Size = UDim2.new(0.65, 0, 1, 0)
     label.Font = Enum.Font.GothamBold
-    label.Text = "  " .. text
+    label.Text = text
     label.TextColor3 = COLORS.TEXT_PRIMARY
     label.TextSize = 24
     label.TextXAlignment = Enum.TextXAlignment.Left
@@ -301,7 +300,7 @@ function createProfessionalToggle(parent, text, callback)
 
     toggleBtn.MouseButton1Click:Connect(function()
         local state = toggleBtn.Text == "OFF"
-        toggleBtn.Text = state and "ON " or "OFF"
+        toggleBtn.Text = state and "ON" or "OFF"
         toggleBtn.BackgroundColor3 = state and COLORS.SUCCESS or COLORS.DANGER
         TweenService:Create(toggleBtn, TweenInfo.new(0.4, Enum.EasingStyle.Quart), {
             Position = state and UDim2.new(0.52, 3, 0, 3) or UDim2.new(0, 3, 0, 3)
@@ -312,7 +311,7 @@ function createProfessionalToggle(parent, text, callback)
     toggles[text] = toggleBtn
 end
 
--- PROFESJONALNY BUTTON Z EFEKTAMI
+-- PROFESSIONAL BUTTON WITH EFFECTS
 function createProfessionalButton(parent, text, callback, size)
     local btnSize = size or UDim2.new(0.47, -20, 0, 95)
     local btn = Instance.new("TextButton")
@@ -334,7 +333,6 @@ function createProfessionalButton(parent, text, callback, size)
     btnStroke.Thickness = 4
     btnStroke.Parent = btn
 
-    -- HOVER EFEKTY
     btn.MouseEnter:Connect(function()
         TweenService:Create(btn, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
             BackgroundTransparency = 0,
@@ -351,18 +349,18 @@ function createProfessionalButton(parent, text, callback, size)
 
     btn.MouseButton1Click:Connect(function()
         TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = COLORS.WARNING}):Play()
-        wait(0.1)
+        task.wait(0.1)
         TweenService:Create(btn, TweenInfo.new(0.4, Enum.EasingStyle.Back), {BackgroundColor3 = COLORS.ACCENT}):Play()
         callback()
     end)
 end
 
--- ZAAWANSOWANE FUNKCJE (WSZYSTKIE Z v11 + ULEPSZONE)
-
--- 🔥 ULTIMATE AUTOFARM
+-- ULTIMATE AUTOFARM
 function toggleAutoFarm(state)
     autoFarmActive = state
-    if connections.autoFarm then connections.autoFarm:Disconnect() end
+    if connections.autoFarm then 
+        connections.autoFarm:Disconnect() 
+    end
     
     if state then
         connections.autoFarm = RunService.Heartbeat:Connect(function()
@@ -378,22 +376,22 @@ function toggleAutoFarm(state)
     end
 end
 
--- 🛒 ULTIMATE AUTSELL
+-- ULTIMATE AUTSELL
 function toggleAutoSell(state)
     autoSellActive = state
-    spawn(function()
+    task.spawn(function()
         while autoSellActive do
             advancedFireRemote("SellAll")
             advancedFireRemote("SellInventory")
             advancedFireRemote("QuickSell")
             advancedFireRemote("sell")
             advancedFireRemote("sellall")
-            wait(2.5)
+            task.wait(2.5)
         end
     end)
 end
 
--- ✈️ PROFESSIONAL FLY SYSTEM
+-- PROFESSIONAL FLY SYSTEM
 function toggleFly(state)
     local char = player.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
@@ -401,7 +399,9 @@ function toggleFly(state)
         
         if connections.fly then 
             connections.fly:Disconnect() 
-            if flyBodyVelocity then flyBodyVelocity:Destroy() end
+            if flyBodyVelocity then 
+                flyBodyVelocity:Destroy() 
+            end
         end
         
         if state then
@@ -439,7 +439,7 @@ function toggleFly(state)
     end
 end
 
--- 🌙 NO GRAVITY ZAAWANSOWANY
+-- ADVANCED NO GRAVITY
 function toggleNoGravity(state)
     local char = player.Character
     if char and char:FindFirstChildOfClass("Humanoid") then
@@ -455,9 +455,8 @@ function toggleNoGravity(state)
     end
 end
 
--- 👁️ PROFESSIONAL ESP Z HEALTH + DISTANCE
+-- PROFESSIONAL ESP WITH HEALTH + DISTANCE
 function toggleESP(state)
-    -- CLEANUP
     for k, _ in pairs(espBoxes) do
         pcall(function()
             if espBoxes[k] then espBoxes[k]:Remove() end
@@ -478,9 +477,8 @@ function toggleESP(state)
                     local head = char:FindFirstChild("Head")
                     
                     local rootPos, onScreen = camera:WorldToViewportPoint(root.Position)
-                    local headPos = head and camera:WorldToViewportPoint(head.Position) or rootPos
+                    local headPos, _ = head and camera:WorldToViewportPoint(head.Position) or rootPos
                     
-                    -- BOX ESP
                     local box = espBoxes[plr]
                     if not box then
                         box = Drawing.new("Square")
@@ -490,7 +488,6 @@ function toggleESP(state)
                         espBoxes[plr] = box
                     end
                     
-                    -- TRACER ESP
                     local tracer = espTracers[plr]
                     if not tracer then
                         tracer = Drawing.new("Line")
@@ -499,7 +496,6 @@ function toggleESP(state)
                         espTracers[plr] = tracer
                     end
                     
-                    -- NAME + DISTANCE + HEALTH
                     local label = espLabels[plr]
                     if not label then
                         label = Drawing.new("Text")
@@ -511,7 +507,6 @@ function toggleESP(state)
                         espLabels[plr] = label
                     end
                     
-                    -- HEALTH BAR
                     local healthBarBg = espHealthBars[plr]
                     if not healthBarBg then
                         healthBarBg = Drawing.new("Line")
@@ -520,54 +515,61 @@ function toggleESP(state)
                         espHealthBars[plr] = healthBarBg
                     end
                     
-                    local healthBar = espHealthBars[plr .. "_fill"]
+                    local healthBarKey = plr .. "_fill"
+                    local healthBar = espHealthBars[healthBarKey]
                     if not healthBar then
                         healthBar = Drawing.new("Line")
                         healthBar.Color = Color3.new(0,1,0)
                         healthBar.Thickness = 4
-                        espHealthBars[plr .. "_fill"] = healthBar
+                        espHealthBars[healthBarKey] = healthBar
                     end
                     
                     if onScreen then
                         local size = (1 / rootPos.Z) * 2500
                         local height = size * 2.3
                         
-                        -- BOX
                         box.Size = Vector2.new(size * 0.8, height)
                         box.Position = Vector2.new(rootPos.X - size * 0.4, rootPos.Y - height/2)
                         box.Visible = true
                         
-                        -- TRACER
                         tracer.From = Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y * 0.9)
                         tracer.To = Vector2.new(rootPos.X, rootPos.Y + height/2)
                         tracer.Visible = true
                         
-                        -- INFO
-                        local dist = (root.Position - (player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character.HumanoidRootPart.Position or root.Position)).Magnitude
+                        local playerChar = player.Character
+                        local dist = playerChar and playerChar:FindFirstChild("HumanoidRootPart") and 
+                                   (root.Position - playerChar.HumanoidRootPart.Position).Magnitude or 0
                         local health = humanoid and (humanoid.Health / humanoid.MaxHealth * 100) or 100
                         label.Text = string.format("%s\n[%.1fm]\nHP: %.0f%%", plr.Name, dist/10, health)
                         label.Position = Vector2.new(rootPos.X, rootPos.Y - height/2 - 45)
                         label.Visible = true
                         
-                        -- HEALTH BAR
+                        local barHeight = (rootPos.Y - height/2 - 15) - (rootPos.Y + height/2 + 10)
                         healthBarBg.From = Vector2.new(rootPos.X - size * 0.45, rootPos.Y + height/2 + 10)
                         healthBarBg.To = Vector2.new(rootPos.X - size * 0.45, rootPos.Y - height/2 - 15)
                         healthBarBg.Visible = true
                         
+                        local healthY = (rootPos.Y + height/2 + 10) + (barHeight * (health/100))
                         healthBar.From = Vector2.new(rootPos.X - size * 0.45, rootPos.Y + height/2 + 10)
-                        healthBar.To = Vector2.new(rootPos.X - size * 0.45, rootPos.Y + height/2 + 10 + ((rootPos.Y - height/2 - 15) - (rootPos.Y + height/2 + 10)) * (health/100))
+                        healthBar.To = Vector2.new(rootPos.X - size * 0.45, healthY)
                         healthBar.Color = Color3.fromRGB(255 - health*2.55, health*2.55, 0)
                         healthBar.Visible = true
                     else
-                        box.Visible = tracer.Visible = label.Visible = healthBarBg.Visible = healthBar.Visible = false
+                        box.Visible = false
+                        if tracer then tracer.Visible = false end
+                        if label then label.Visible = false end
+                        if healthBarBg then healthBarBg.Visible = false end
+                        if healthBar then healthBar.Visible = false end
                     end
                 end
             end
         end)
+    elseif connections.esp then
+        connections.esp:Disconnect()
     end
 end
 
--- 💥 ULTIMATE FLING SYSTEM
+-- ULTIMATE FLING SYSTEM
 function flingAllPlayers()
     for _, plr in pairs(Players:GetPlayers()) do
         if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
@@ -582,7 +584,7 @@ function flingAllPlayers()
     end
 end
 
--- 🚀 SUPER JUMP ZAAWANSOWANY
+-- SUPER JUMP ADVANCED
 function superJump()
     local char = player.Character
     if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChildOfClass("Humanoid") then
@@ -597,15 +599,15 @@ function superJump()
         bv.Velocity = Vector3.new(0, 300, 0)
         bv.Parent = root
         
-        game:GetService("Debris"):AddItem(bv, 0.7)
-        spawn(function()
-            wait(0.8)
+        Debris:AddItem(bv, 0.7)
+        task.spawn(function()
+            task.wait(0.8)
             humanoid.JumpPower = 60
         end)
     end
 end
 
--- 📍 EVENT TELEPORTS (ULEPSZONE POZYCJE)
+-- EVENT TELEPORTS
 local eventPositions = {
     Gifts = {Vector3.new(0, 60, 0), Vector3.new(120, 60, 120)},
     Events = {Vector3.new(-120, 60, -120), Vector3.new(0, 60, 250)},
@@ -621,45 +623,43 @@ function tpEvent(eventName)
         
         for _, pos in pairs(positions) do
             root.CFrame = CFrame.new(pos + Vector3.new(math.random(-30,30), 0, math.random(-30,30)))
-            wait(0.1)
+            task.wait(0.1)
         end
         return true
     end
     return false
 end
 
--- WYPEŁNIJ PROFESJONALNE ZAKŁADKI
+-- POPULATE PROFESSIONAL TABS
 function populateProfessionalContent(tabFrames)
-    -- 🤖 AUTOFARM - ULTIMATE
-    createProfessionalToggle(tabFrames[1], "💰 Auto Open Money Cases", toggleAutoFarm)
-    createProfessionalToggle(tabFrames[1], "🛒 Auto Sell Everything", toggleAutoSell)
-    createProfessionalButton(tabFrames[1], "⚡ Instant Collect x20", function()
+    createProfessionalToggle(tabFrames[1], "Auto Open Money Cases", toggleAutoFarm)
+    createProfessionalToggle(tabFrames[1], "Auto Sell Everything", toggleAutoSell)
+    createProfessionalButton(tabFrames[1], "Instant Collect x20", function()
         for i = 1, 20 do 
             advancedFireRemote("Collect") 
             advancedFireRemote("Claim") 
             advancedFireRemote("collect")
         end
     end)
-    createProfessionalButton(tabFrames[1], "🎁 Auto Claim Rewards", function()
+    createProfessionalButton(tabFrames[1], "Auto Claim Rewards", function()
         for i = 1, 15 do advancedFireRemote("ClaimReward") end
     end, UDim2.new(1, -40, 0, 95))
 
-    -- 🏃 MOVEMENT - PROFESJONALNE
-    createProfessionalToggle(tabFrames[2], "✈️ Ultimate Fly (WASD+Space+Shift)", toggleFly)
-    createProfessionalToggle(tabFrames[2], "🌙 Perfect No Gravity", toggleNoGravity)
-    createProfessionalToggle(tabFrames[2], "⚡ Speed x8 (120)", function(state)
+    createProfessionalToggle(tabFrames[2], "Ultimate Fly (WASD+Space+Shift)", toggleFly)
+    createProfessionalToggle(tabFrames[2], "Perfect No Gravity", toggleNoGravity)
+    createProfessionalToggle(tabFrames[2], "Speed x8 (120)", function(state)
         local char = player.Character
         if char and char:FindFirstChildOfClass("Humanoid") then
             char:FindFirstChildOfClass("Humanoid").WalkSpeed = state and 120 or 16
         end
     end)
-    createProfessionalToggle(tabFrames[2], "🦘 Super Jump x5 (250)", function(state)
+    createProfessionalToggle(tabFrames[2], "Super Jump x5 (250)", function(state)
         local char = player.Character
         if char and char:FindFirstChildOfClass("Humanoid") then
             char:FindFirstChildOfClass("Humanoid").JumpPower = state and 250 or 50
         end
     end)
-    createProfessionalToggle(tabFrames[2], "👻 Advanced Noclip", function(state)
+    createProfessionalToggle(tabFrames[2], "Advanced Noclip", function(state)
         if state then
             noclipConnection = RunService.Stepped:Connect(function()
                 local char = player.Character
@@ -672,49 +672,48 @@ function populateProfessionalContent(tabFrames)
                 end
             end)
         else
-            if noclipConnection then noclipConnection:Disconnect() end
+            if noclipConnection then 
+                noclipConnection:Disconnect() 
+            end
         end
     end)
-    createProfessionalButton(tabFrames[2], "🚀 Rocket Jump x2", superJump)
+    createProfessionalButton(tabFrames[2], "Rocket Jump x2", superJump)
 
-    -- 🎁 EVENTS - ULEPSZONE
-    createProfessionalButton(tabFrames[3], "🎁 Teleport Gifts Area", function() tpEvent("Gifts") end)
-    createProfessionalButton(tabFrames[3], "🎪 Teleport Events Zone", function() tpEvent("Events") end)
-    createProfessionalButton(tabFrames[3], "💎 Teleport Cases Spawn", function() tpEvent("Cases") end)
-    createProfessionalButton(tabFrames[3], "🏆 Teleport Rewards Hub", function() tpEvent("Rewards") end)
-    createProfessionalButton(tabFrames[3], "🔥 TP All Events FAST", function()
-        tpEvent("Gifts") wait(0.5) tpEvent("Events") wait(0.5) tpEvent("Cases") wait(0.5) tpEvent("Rewards")
+    createProfessionalButton(tabFrames[3], "Teleport Gifts Area", function() tpEvent("Gifts") end)
+    createProfessionalButton(tabFrames[3], "Teleport Events Zone", function() tpEvent("Events") end)
+    createProfessionalButton(tabFrames[3], "Teleport Cases Spawn", function() tpEvent("Cases") end)
+    createProfessionalButton(tabFrames[3], "Teleport Rewards Hub", function() tpEvent("Rewards") end)
+    createProfessionalButton(tabFrames[3], "TP All Events FAST", function()
+        tpEvent("Gifts") task.wait(0.5) tpEvent("Events") task.wait(0.5) tpEvent("Cases") task.wait(0.5) tpEvent("Rewards")
     end, UDim2.new(1, -40, 0, 95))
-    createProfessionalButton(tabFrames[3], "🎲 Random Event Roulette", function()
+    createProfessionalButton(tabFrames[3], "Random Event Roulette", function()
         local events = {"Gifts", "Events", "Cases", "Rewards"}
         tpEvent(events[math.random(1, #events)])
     end)
 
-    -- ⚙️ MISC - PROFESJONALNE OPCJE
-    createProfessionalToggle(tabFrames[4], "🌞 Fullbright + Shadows OFF", function(state)
+    createProfessionalToggle(tabFrames[4], "Fullbright + Shadows OFF", function(state)
         Lighting.Brightness = state and 6 or 1
         Lighting.GlobalShadows = not state
         Lighting.FogEnd = state and 100000 or 100000
     end)
-    createProfessionalToggle(tabFrames[4], "🎮 Anti AFK (60s)", function(state)
-        spawn(function()
+    createProfessionalToggle(tabFrames[4], "Anti AFK (60s)", function(state)
+        task.spawn(function()
             while state do
                 VirtualUser:CaptureController()
                 VirtualUser:ClickButton2(Vector2.new())
-                wait(58)
+                task.wait(58)
             end
         end)
     end)
-    createProfessionalToggle(tabFrames[4], "📊 FPS Boost 1000+", function(state)
+    createProfessionalToggle(tabFrames[4], "FPS Boost 1000+", function(state)
         settings().Rendering.QualityLevel = state and "Level01" or "Automatic"
         settings().Physics.PhysicsEnvironmentalThrottle = state and 
             Enum.EnviromentalPhysicsThrottle.Disabled or Enum.EnviromentalPhysicsThrottle.Default
     end)
-    createProfessionalToggle(tabFrames[4], "🌈 Infinite Yield Chat", function(state) end)
-    createProfessionalButton(tabFrames[4], "🔄 Rejoin Server", function()
+    createProfessionalButton(tabFrames[4], "Rejoin Server", function()
         TeleportService:Teleport(game.PlaceId, player)
     end)
-    createProfessionalButton(tabFrames[4], "🗑️ Clear All Drops", function()
+    createProfessionalButton(tabFrames[4], "Clear All Drops", function()
         for _, obj in pairs(Workspace:GetDescendants()) do
             if obj:IsA("BasePart") and (obj.Name:lower():find("drop") or obj.Name:lower():find("case")) then
                 obj:Destroy()
@@ -722,27 +721,31 @@ function populateProfessionalContent(tabFrames)
         end
     end, UDim2.new(1, -40, 0, 95))
 
-    -- 💥 TROLL - ULTIMATE DESTRUCTION
-    createProfessionalButton(tabFrames[5], "💥 ULTIMATE FLING ALL", flingAllPlayers)
-    createProfessionalButton(tabFrames[5], "🚀 DOUBLE ROCKET JUMP", function() superJump() wait(0.2) superJump() end)
-    createProfessionalButton(tabFrames[5], "🌀 SPIN KILL ALL", function()
+    createProfessionalButton(tabFrames[5], "ULTIMATE FLING ALL", flingAllPlayers)
+    createProfessionalButton(tabFrames[5], "DOUBLE ROCKET JUMP", function() superJump() task.wait(0.2) superJump() end)
+    createProfessionalButton(tabFrames[5], "SPIN KILL ALL", function()
         for _, plr in pairs(Players:GetPlayers()) do
             if plr ~= player and plr.Character then
-                plr.Character.HumanoidRootPart.AssemblyAngularVelocity = Vector3.new(7500,7500,7500)
+                local root = plr.Character:FindFirstChild("HumanoidRootPart")
+                if root then
+                    root.AssemblyAngularVelocity = Vector3.new(7500,7500,7500)
+                end
             end
         end
     end)
-    createProfessionalButton(tabFrames[5], "🌪️ RANDOM TP TORNADO", function()
+    createProfessionalButton(tabFrames[5], "RANDOM TP TORNADO", function()
         for _, plr in pairs(Players:GetPlayers()) do
             if plr ~= player and plr.Character then
-                local root = plr.Character.HumanoidRootPart
-                root.CFrame = CFrame.new(
-                    Vector3.new(math.random(-500,500), math.random(50,200), math.random(-500,500))
-                )
+                local root = plr.Character:FindFirstChild("HumanoidRootPart")
+                if root then
+                    root.CFrame = CFrame.new(
+                        Vector3.new(math.random(-500,500), math.random(50,200), math.random(-500,500))
+                    )
+                end
             end
         end
     end)
-    createProfessionalButton(tabFrames[5], "🔥 FREEZE + PLATFORM", function()
+    createProfessionalButton(tabFrames[5], "FREEZE + PLATFORM", function()
         for _, plr in pairs(Players:GetPlayers()) do
             if plr ~= player and plr.Character then
                 local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
@@ -751,11 +754,8 @@ function populateProfessionalContent(tabFrames)
         end
     end)
 
-    -- 👤 PLAYER - PROFESSIONAL TOOLS
-    createProfessionalToggle(tabFrames[6], "👁️ ULTIMATE ESP Full", toggleESP)
-    createProfessionalToggle(tabFrames[6], "📍 Tracers Only Mode", function(state) end)
-    createProfessionalToggle(tabFrames[6], "❤️ Health Bars Only", function(state) end)
-    createProfessionalButton(tabFrames[6], "🎯 Copy Nearest Player", function()
+    createProfessionalToggle(tabFrames[6], "ULTIMATE ESP Full", toggleESP)
+    createProfessionalButton(tabFrames[6], "Copy Nearest Player", function()
         local nearest, dist = nil, math.huge
         local char = player.Character
         if char and char:FindFirstChild("HumanoidRootPart") then
@@ -766,54 +766,51 @@ function populateProfessionalContent(tabFrames)
                 end
             end
         end
-        if nearest then setclipboard(nearest.Name) end
+        if nearest then
+            setclipboard(nearest.Name)
+        end
     end)
-    createProfessionalButton(tabFrames[6], "👥 Player List Console", function()
+    createProfessionalButton(tabFrames[6], "Player List Console", function()
         for _, plr in pairs(Players:GetPlayers()) do
             print("Player:", plr.Name, "| ID:", plr.UserId)
         end
     end)
 
-    -- 📊 STATS - NOWA ZAKŁADKA
     local statsLabel = Instance.new("TextLabel")
     statsLabel.Parent = tabFrames[7]
     statsLabel.BackgroundTransparency = 1
     statsLabel.Size = UDim2.new(1, 0, 0, 100)
     statsLabel.Font = Enum.Font.GothamBold
-    statsLabel.Text = "📊 PROFESSIONAL STATISTICS"
+    statsLabel.Text = "PROFESSIONAL STATISTICS"
     statsLabel.TextColor3 = COLORS.INFO
     statsLabel.TextSize = 28
     statsLabel.TextXAlignment = Enum.TextXAlignment.Center
 
-    createProfessionalButton(tabFrames[7], "🔄 Update Player Count", function()
+    createProfessionalButton(tabFrames[7], "Update Player Count", function()
         print("Total Players:", #Players:GetPlayers())
     end)
-    createProfessionalButton(tabFrames[7], "💾 Save Hub Config", function() end)
-    createProfessionalButton(tabFrames[7], "📈 Show FPS Counter", function() end)
 end
 
--- ANTYRESPAWN + AUTO RELOAD
+-- ANTI-RESPAWN + AUTO RELOAD
 player.CharacterAdded:Connect(function()
-    wait(3)
-    local espToggle = toggles["👁️ ULTIMATE ESP Full"]
-    if espToggle and espToggle.Text == "ON " then
+    task.wait(3)
+    local espToggle = toggles["ULTIMATE ESP Full"]
+    if espToggle and espToggle.Text == "ON" then
         toggleESP(true)
     end
 end)
 
--- START PROFESJONALNY SYSTEM
-spawn(function()
-    wait(1.5)
+-- START PROFESSIONAL SYSTEM
+task.spawn(function()
+    task.wait(1.5)
     createProfessionalGUI()
     
     game.StarterGui:SetCore("SendNotification", {
-        Title = "⭐ TURCJIA HUB v13 PROFESSIONAL";
+        Title = "TURCJIA HUB v13 PROFESSIONAL";
         Text = "ULTIMATE EDITION LOADED! 60+ Features | Press X | Perfect Performance";
         Duration = 10;
-        Icon = "rbxassetid://4483345998"
     })
     
-    -- PROFESJONALNY KONSOLE
-    print("⭐ TURCJIA HUB v13 PROFESSIONAL - LOADED PERFECTLY!")
-    print("📱 Toggle: X | Tabs: Click | All features optimized!")
+    print("TURCJIA HUB v13 PROFESSIONAL - LOADED PERFECTLY!")
+    print("Toggle: X | Tabs: Click | All features optimized!")
 end)
